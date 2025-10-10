@@ -24,7 +24,7 @@ func (s *YoutubeImporter) Import(collection *domain.Collection) (bool, error) {
 		return false, nil
 	}
 
-	collectionID, err := s.checkIfPCollectionExists(collection.Name)
+	collectionID, err := s.checkIfCollectionExists(collection.Name)
 	if err != nil {
 		return false, err
 	}
@@ -54,7 +54,7 @@ func (s *YoutubeImporter) Import(collection *domain.Collection) (bool, error) {
 	return true, nil
 }
 
-func (s *YoutubeImporter) checkIfPCollectionExists(playlistName string) (collectionID string, err error) {
+func (s *YoutubeImporter) checkIfCollectionExists(playlistName string) (collectionID string, err error) {
 	// Simulate a check for the playlist's existence
 	if playlistName == "" {
 		return "", nil
