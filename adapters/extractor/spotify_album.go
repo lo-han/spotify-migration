@@ -1,49 +1,57 @@
 package extractor
 
 import (
+	"context"
 	"spotify_migration/domain"
 	"spotify_migration/ports"
+
+	"github.com/zmb3/spotify/v2"
+	spotifyauth "github.com/zmb3/spotify/v2/auth"
+	"golang.org/x/oauth2"
 )
 
-func NewSpotifyPlaylistExtractor() ports.IExtractor {
-	return &SpotifyPlaylistExtractor{}
+func NewSpotifyAlbumExtractor(ctx context.Context, auth *spotifyauth.Authenticator, token *oauth2.Token) ports.IExtractor {
+	return &SpotifyAlbumExtractor{
+		client: spotify.New(auth.Client(ctx, token)),
+	}
 }
 
-type SpotifyPlaylistExtractor struct {
+type SpotifyAlbumExtractor struct {
+	client *spotify.Client
 }
 
-func (s *SpotifyPlaylistExtractor) Extract(resourceName string) (*domain.Collection, error) {
-	playlistID, err := s.getPlaylistID(resourceName)
+func (s *SpotifyAlbumExtractor) Extract(ctx context.Context, resourceName string) (*domain.Collection, error) {
+	albumID, err := s.getAlbumID(resourceName)
 	if err != nil {
 		return nil, err
 	}
 
-	playlistItems, err := s.getPlaylistItems(playlistID)
+	albumItems, err := s.getAlbumItems(albumID)
 	if err != nil {
 		return nil, err
 	}
 
-	return playlistItems, nil
+	return albumItems, nil
 }
 
-func (s *SpotifyPlaylistExtractor) getPlaylistID(resourceName string) (string, error) {
-	// Simulate fetching playlist ID by resource name
+func (s *SpotifyAlbumExtractor) getAlbumID(resourceName string) (string, error) {
+	// Simulate fetching album ID by resource name
 	if resourceName == "" {
 		return "", nil
 	}
-	return "playlist_id", nil
+	return "album_id", nil
 }
 
-func (s *SpotifyPlaylistExtractor) getPlaylistItems(id string) (*domain.Collection, error) {
-	// Simulate fetching playlist items by playlist ID
+func (s *SpotifyAlbumExtractor) getAlbumItems(id string) (*domain.Collection, error) {
+	// Simulate fetching album items by album ID
 	if id == "" {
 		return nil, nil
 	}
 	return &domain.Collection{
-		Name: "My Playlist",
+		Name: "My Album",
 		Musics: []*domain.Music{
-			{Title: "Song 1"},
-			{Title: "Song 2"},
+			{Title: "Song 1", Artist: "Artist A", Album: "My Album"},
+			{Title: "Song 2", Artist: "Artist A", Album: "My Album"},
 		},
 	}, nil
 }
