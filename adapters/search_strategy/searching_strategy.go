@@ -1,4 +1,4 @@
-package adapters
+package searching_strategy
 
 import "spotify_migration/domain"
 

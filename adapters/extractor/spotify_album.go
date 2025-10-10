@@ -1,8 +1,11 @@
-package adapters
+package extractor
 
-import "spotify_migration/domain"
+import (
+	"spotify_migration/domain"
+	"spotify_migration/ports"
+)
 
-func NewSpotifyPlaylistExtractor() *SpotifyPlaylistExtractor {
+func NewSpotifyPlaylistExtractor() ports.IExtractor {
 	return &SpotifyPlaylistExtractor{}
 }
 

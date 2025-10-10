@@ -1,4 +1,4 @@
-package adapters
+package importing_strategy
 
 func NewYoutubeMemsetUpdater() *YoutubeMemsetUpdater {
 	return &YoutubeMemsetUpdater{}

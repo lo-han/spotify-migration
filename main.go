@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
-	"spotify_migration/adapters"
+	"spotify_migration/adapters/extractor"
+	"spotify_migration/adapters/importer"
 	"spotify_migration/domain"
 	"spotify_migration/ports"
 	"spotify_migration/usecases"
@@ -19,14 +20,14 @@ func main() {
 
 	var spotify ports.IExtractor
 
-	youtube := adapters.NewYoutubeImporter()
+	youtube := importer.NewYoutubeImporter()
 
 	switch resourceKind {
 	case domain.PlaylistKind:
-		spotify = adapters.NewSpotifyPlaylistExtractor()
+		spotify = extractor.NewSpotifyPlaylistExtractor()
 
 	case domain.AlbumKind:
-		spotify = adapters.NewSpotifyAlbumExtractor()
+		spotify = extractor.NewSpotifyAlbumExtractor()
 	}
 
 	migration := usecases.NewMigration(spotify, youtube)

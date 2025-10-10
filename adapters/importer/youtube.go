@@ -1,14 +1,16 @@
-package adapters
+package importer
 
 import (
+	"spotify_migration/adapters/importing_strategy"
+	searching_strategy "spotify_migration/adapters/search_strategy"
 	"spotify_migration/domain"
 	"spotify_migration/ports"
 )
 
-func NewYoutubeImporter() *YoutubeImporter {
+func NewYoutubeImporter() ports.IImporter {
 	return &YoutubeImporter{
-		updater:  NewYoutubeMemsetUpdater(),
-		searcher: NewStandardSearchStrategy(),
+		updater:  importing_strategy.NewYoutubeMemsetUpdater(),
+		searcher: searching_strategy.NewStandardSearchStrategy(),
 	}
 }
 
