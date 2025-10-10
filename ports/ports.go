@@ -1,19 +1,22 @@
 package ports
 
-import "spotify_migration/domain"
+import (
+	"context"
+	"spotify_migration/domain"
+)
 
 type IExtractor interface {
-	Extract(resourceName string) (*domain.Collection, error)
+	Extract(ctx context.Context, resourceName string) (*domain.Collection, error)
 }
 
 type IImporter interface {
-	Import(*domain.Collection) (bool, error)
+	Import(ctx context.Context, collection *domain.Collection) (bool, error)
 }
 
 type IImportingStrategy interface {
-	UpdateItems(collectionID string, itemIDs []string) error
+	UpdateItems(ctx context.Context, collectionID string, itemIDs []string) error
 }
 
 type ISearchStrategy interface {
-	SearchItem(music *domain.Music) (itemID string, err error)
+	SearchItem(ctx context.Context, music *domain.Music) (itemID string, err error)
 }

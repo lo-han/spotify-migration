@@ -1,6 +1,9 @@
 package usecases
 
-import "spotify_migration/ports"
+import (
+	"context"
+	"spotify_migration/ports"
+)
 
 type Migration struct {
 	Extractor ports.IExtractor
@@ -14,11 +17,11 @@ func NewMigration(extractor ports.IExtractor, importer ports.IImporter) *Migrati
 	}
 }
 
-func (m *Migration) Migrate(resourceName string) (bool, error) {
-	resourceData, err := m.Extractor.Extract(resourceName)
+func (m *Migration) Migrate(ctx context.Context, resourceName string) (bool, error) {
+	resourceData, err := m.Extractor.Extract(ctx, resourceName)
 	if err != nil {
 		return false, err
 	}
 
-	return m.Importer.Import(resourceData)
+	return m.Importer.Import(ctx, resourceData)
 }

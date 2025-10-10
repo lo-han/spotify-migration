@@ -1,5 +1,7 @@
 package importing_strategy
 
+import "context"
+
 func NewYoutubeMemsetUpdater() *YoutubeMemsetUpdater {
 	return &YoutubeMemsetUpdater{}
 }
@@ -7,7 +9,7 @@ func NewYoutubeMemsetUpdater() *YoutubeMemsetUpdater {
 type YoutubeMemsetUpdater struct {
 }
 
-func (u *YoutubeMemsetUpdater) UpdateItems(collectionID string, itemIDs []string) error {
+func (u *YoutubeMemsetUpdater) UpdateItems(ctx context.Context, collectionID string, itemIDs []string) error {
 	err := u.deleteAll(collectionID)
 	if err != nil {
 		return err

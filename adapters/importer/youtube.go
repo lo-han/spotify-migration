@@ -1,6 +1,7 @@
 package importer
 
 import (
+	"context"
 	"spotify_migration/adapters/importing_strategy"
 	searching_strategy "spotify_migration/adapters/search_strategy"
 	"spotify_migration/domain"
@@ -19,7 +20,7 @@ type YoutubeImporter struct {
 	searcher ports.ISearchStrategy
 }
 
-func (s *YoutubeImporter) Import(collection *domain.Collection) (bool, error) {
+func (s *YoutubeImporter) Import(ctx context.Context, collection *domain.Collection) (bool, error) {
 	if collection == nil {
 		return false, nil
 	}
@@ -39,14 +40,14 @@ func (s *YoutubeImporter) Import(collection *domain.Collection) (bool, error) {
 	var itemIDs []string
 
 	for _, music := range collection.Musics {
-		itemID, err := s.searcher.SearchItem(music)
+		itemID, err := s.searcher.SearchItem(ctx, music)
 		if err != nil {
 			return false, err
 		}
 		itemIDs = append(itemIDs, itemID)
 	}
 
-	err = s.updater.UpdateItems(collectionID, itemIDs)
+	err = s.updater.UpdateItems(ctx, collectionID, itemIDs)
 	if err != nil {
 		return false, err
 	}
