@@ -11,34 +11,36 @@ import (
 )
 
 func NewYoutubeImporter(service *youtube.Service) ports.IImporter {
-	return &YoutubeImporter{
-		updater:  importing_strategy.NewYoutubeMemsetUpdater(),
-		searcher: searching_strategy.NewStandardSearchStrategy(),
+	return &youtubeImporter{
+		searcher: searching_strategy.NewStandardSearchStrategy(service),
 		service:  service,
 	}
 }
 
-type YoutubeImporter struct {
+type youtubeImporter struct {
 	service  *youtube.Service
 	updater  ports.IImportingStrategy
 	searcher ports.ISearchStrategy
 }
 
-func (s *YoutubeImporter) Import(ctx context.Context, collection *domain.Collection) (bool, error) {
+func (s *youtubeImporter) Import(ctx context.Context, collection *domain.Collection) (bool, error) {
 	if collection == nil {
 		return false, nil
 	}
 
-	collectionID, err := s.checkIfCollectionExists(collection.Name)
+	collectionID, err := s.checkIfCollectionExists(ctx, collection.Name)
 	if err != nil {
 		return false, err
 	}
 
 	if collectionID == "" {
-		collectionID, err = s.createCollection(collection.Name)
+		collectionID, err = s.createCollection(ctx, collection.Name)
 		if err != nil {
 			return false, err
 		}
+		s.updater = importing_strategy.NewYoutubeJustInsert(s.service)
+	} else {
+		s.updater = importing_strategy.NewYoutubeDeleteToInsert(s.service)
 	}
 
 	var itemIDs []string
@@ -51,7 +53,7 @@ func (s *YoutubeImporter) Import(ctx context.Context, collection *domain.Collect
 		itemIDs = append(itemIDs, itemID)
 	}
 
-	err = s.updater.UpdateItems(ctx, collectionID, itemIDs)
+	err = s.updater.UpdateItems(ctx, collection.Name, collectionID, itemIDs)
 	if err != nil {
 		return false, err
 	}
@@ -59,18 +61,33 @@ func (s *YoutubeImporter) Import(ctx context.Context, collection *domain.Collect
 	return true, nil
 }
 
-func (s *YoutubeImporter) checkIfCollectionExists(playlistName string) (collectionID string, err error) {
-	// Simulate a check for the playlist's existence
-	if playlistName == "" {
-		return "", nil
+func (s *youtubeImporter) checkIfCollectionExists(ctx context.Context, playlistName string) (collectionID string, err error) {
+	response, err := s.service.Playlists.List([]string{}).Context(ctx).Do()
+	if err != nil {
+		return "", err
 	}
-	return "existing_playlist_id", nil
+
+	for _, playlist := range response.Items {
+		if playlist.Snippet.Title == playlistName {
+			return playlist.Id, nil
+		}
+	}
+	return "", nil
 }
 
-func (s *YoutubeImporter) createCollection(name string) (collectionID string, err error) {
-	// Simulate playlist creation
-	if name == "" {
-		return "", nil
+func (s *youtubeImporter) createCollection(ctx context.Context, name string) (collectionID string, err error) {
+	playlist, err := s.service.Playlists.Insert([]string{"snippet,status"}, &youtube.Playlist{
+		Snippet: &youtube.PlaylistSnippet{
+			Title: name,
+		},
+		Status: &youtube.PlaylistStatus{
+			PrivacyStatus: "private",
+		},
+	}).Context(ctx).Do()
+
+	if err != nil {
+		return "", err
 	}
-	return "new_playlist_id", nil
+
+	return playlist.Id, nil
 }

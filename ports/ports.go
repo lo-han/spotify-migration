@@ -14,7 +14,7 @@ type IImporter interface {
 }
 
 type IImportingStrategy interface {
-	UpdateItems(ctx context.Context, collectionID string, itemIDs []string) error
+	UpdateItems(ctx context.Context, resourceName string, collectionID string, itemIDs []string) error
 }
 
 type ISearchStrategy interface {

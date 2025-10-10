@@ -1,21 +1,26 @@
 package importing_strategy
 
-import "context"
+import (
+	"context"
 
-func NewYoutubeMemsetUpdater() *YoutubeMemsetUpdater {
-	return &YoutubeMemsetUpdater{}
+	"google.golang.org/api/youtube/v3"
+)
+
+func NewYoutubeMemsetUpdater(service *youtube.Service) *YoutubeMemsetUpdater {
+	return &YoutubeMemsetUpdater{service: service}
 }
 
 type YoutubeMemsetUpdater struct {
+	service *youtube.Service
 }
 
 func (u *YoutubeMemsetUpdater) UpdateItems(ctx context.Context, collectionID string, itemIDs []string) error {
-	err := u.deleteAll(collectionID)
+	err := u.deleteAll(ctx, collectionID)
 	if err != nil {
 		return err
 	}
 
-	err = u.insertAll(collectionID, itemIDs)
+	err = u.insertAll(ctx, collectionID, itemIDs)
 	if err != nil {
 		return err
 	}
@@ -23,7 +28,7 @@ func (u *YoutubeMemsetUpdater) UpdateItems(ctx context.Context, collectionID str
 	return nil
 }
 
-func (u *YoutubeMemsetUpdater) deleteAll(collectionID string) error {
+func (u *YoutubeMemsetUpdater) deleteAll(ctx context.Context, collectionID string) error {
 	// Simulate deleting all items from the playlist
 	if collectionID == "" {
 		return nil
@@ -31,12 +36,12 @@ func (u *YoutubeMemsetUpdater) deleteAll(collectionID string) error {
 	return nil
 }
 
-func (u *YoutubeMemsetUpdater) insertAll(collectionID string, itemIDs []string) error {
+func (u *YoutubeMemsetUpdater) insertAll(ctx context.Context, collectionID string, itemIDs []string) error {
 	if collectionID == "" || len(itemIDs) == 0 {
 		return nil
 	}
 	for _, itemID := range itemIDs {
-		err := u.addItemToPlaylist(collectionID, itemID)
+		err := u.addItemToPlaylist(ctx, collectionID, itemID)
 		if err != nil {
 			return err
 		}
@@ -44,7 +49,7 @@ func (u *YoutubeMemsetUpdater) insertAll(collectionID string, itemIDs []string) 
 	return nil
 }
 
-func (u *YoutubeMemsetUpdater) addItemToPlaylist(collectionID string, itemID string) error {
+func (u *YoutubeMemsetUpdater) addItemToPlaylist(ctx context.Context, collectionID string, itemID string) error {
 	// Simulate adding an item to the playlist
 	if collectionID == "" || itemID == "" {
 		return nil
