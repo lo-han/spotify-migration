@@ -35,7 +35,8 @@ func main() {
 		spotify = extractor.NewSpotifyPlaylistExtractor(ctx, auth, token)
 
 	case domain.AlbumKind:
-		spotify = extractor.NewSpotifyAlbumExtractor(ctx, auth, token)
+		fmt.Println("Album extraction not supported")
+		return
 	}
 
 	migration := usecases.NewMigration(spotify, youtube)
