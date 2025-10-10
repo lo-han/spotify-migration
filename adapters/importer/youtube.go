@@ -6,16 +6,20 @@ import (
 	searching_strategy "spotify_migration/adapters/search_strategy"
 	"spotify_migration/domain"
 	"spotify_migration/ports"
+
+	"google.golang.org/api/youtube/v3"
 )
 
-func NewYoutubeImporter() ports.IImporter {
+func NewYoutubeImporter(service *youtube.Service) ports.IImporter {
 	return &YoutubeImporter{
 		updater:  importing_strategy.NewYoutubeMemsetUpdater(),
 		searcher: searching_strategy.NewStandardSearchStrategy(),
+		service:  service,
 	}
 }
 
 type YoutubeImporter struct {
+	service  *youtube.Service
 	updater  ports.IImportingStrategy
 	searcher ports.ISearchStrategy
 }

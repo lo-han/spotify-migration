@@ -13,6 +13,8 @@ import (
 
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 	"golang.org/x/oauth2"
+	"google.golang.org/api/option"
+	"google.golang.org/api/youtube/v3"
 )
 
 func main() {
@@ -28,8 +30,9 @@ func main() {
 	var spotify ports.IExtractor
 
 	auth, token := spotifyAuth(ctx)
+	youtubeService := youtubeService(ctx)
 
-	youtube := importer.NewYoutubeImporter()
+	youtube := importer.NewYoutubeImporter(youtubeService)
 
 	switch resourceKind {
 	case domain.PlaylistKind:
@@ -63,8 +66,16 @@ func spotifyAuth(ctx context.Context) (*spotifyauth.Authenticator, *oauth2.Token
 
 	token, err := auth.Exchange(ctx, string(random))
 	if err != nil {
-		return nil, nil
+		panic("could not exchange code")
 	}
 
 	return auth, token
+}
+
+func youtubeService(ctx context.Context) *youtube.Service {
+	youtubeService, err := youtube.NewService(ctx, option.WithCredentialsFile("keyfile.json"))
+	if err != nil {
+		panic("could not get youtube service")
+	}
+	return youtubeService
 }
