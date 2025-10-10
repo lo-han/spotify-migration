@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
 	"os"
 	"spotify_migration/adapters/extractor"
@@ -53,7 +54,14 @@ func spotifyAuth(ctx context.Context) (*spotifyauth.Authenticator, *oauth2.Token
 		spotifyauth.WithScopes(spotifyauth.ScopeUserReadPrivate),
 	)
 
-	token, err := auth.Exchange(ctx, os.Getenv("CODE"))
+	random := make([]byte, 16)
+
+	_, err := rand.Read(random)
+	if err != nil {
+		panic("could not generate code")
+	}
+
+	token, err := auth.Exchange(ctx, string(random))
 	if err != nil {
 		return nil, nil
 	}
