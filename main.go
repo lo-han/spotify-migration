@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/rand"
 	"fmt"
 	"os"
 	"spotify_migration/adapters/extractor"
@@ -25,6 +24,11 @@ func main() {
 	resourceKind := os.Args[1]
 	resourceName := os.Args[2]
 
+	if resourceKind != domain.PlaylistKind {
+		fmt.Println("selected migration not supported")
+		return
+	}
+
 	ctx := context.Background()
 
 	var spotify ports.IExtractor
@@ -37,10 +41,6 @@ func main() {
 	switch resourceKind {
 	case domain.PlaylistKind:
 		spotify = extractor.NewSpotifyPlaylistExtractor(ctx, auth, token)
-
-	case domain.AlbumKind:
-		fmt.Println("Album extraction not supported")
-		return
 	}
 
 	migration := usecases.NewMigration(spotify, youtube)
@@ -55,16 +55,10 @@ func main() {
 func spotifyAuth(ctx context.Context) (*spotifyauth.Authenticator, *oauth2.Token) {
 	auth := spotifyauth.New(
 		spotifyauth.WithScopes(spotifyauth.ScopeUserReadPrivate),
+		spotifyauth.WithRedirectURL(os.Getenv("REDIRECT_URL")),
 	)
 
-	random := make([]byte, 16)
-
-	_, err := rand.Read(random)
-	if err != nil {
-		panic("could not generate code")
-	}
-
-	token, err := auth.Exchange(ctx, string(random))
+	token, err := auth.Exchange(ctx, os.Getenv("SPOTIFY_AUTH_CODE"))
 	if err != nil {
 		panic("could not exchange code")
 	}
