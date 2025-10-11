@@ -62,7 +62,7 @@ func (s *youtubeImporter) Import(ctx context.Context, collection *domain.Collect
 }
 
 func (s *youtubeImporter) checkIfCollectionExists(ctx context.Context, playlistName string) (collectionID string, err error) {
-	response, err := s.service.Playlists.List([]string{}).Context(ctx).Do()
+	response, err := s.service.Playlists.List([]string{"id", "snippet"}).Context(ctx).Do()
 	if err != nil {
 		return "", err
 	}
