@@ -1,2 +1,4 @@
 .env
 keyfile.json
+.vscode
+__debug*
