@@ -13,16 +13,16 @@ import (
 )
 
 func NewSpotifyPlaylistExtractor(ctx context.Context, auth *spotifyauth.Authenticator, token *oauth2.Token) ports.IExtractor {
-	return &SpotifyPlaylistExtractor{
+	return &spotifyPlaylistExtractor{
 		client: spotify.New(auth.Client(ctx, token)),
 	}
 }
 
-type SpotifyPlaylistExtractor struct {
+type spotifyPlaylistExtractor struct {
 	client *spotify.Client
 }
 
-func (s *SpotifyPlaylistExtractor) Extract(ctx context.Context, resourceName string) (*domain.Collection, error) {
+func (s *spotifyPlaylistExtractor) Extract(ctx context.Context, resourceName string) (*domain.Collection, error) {
 	playlistID, err := s.getPlaylistID(ctx, resourceName)
 	if err != nil {
 		return nil, err
@@ -36,7 +36,7 @@ func (s *SpotifyPlaylistExtractor) Extract(ctx context.Context, resourceName str
 	return playlistItems, nil
 }
 
-func (s *SpotifyPlaylistExtractor) getPlaylistID(ctx context.Context, resourceName string) (string, error) {
+func (s *spotifyPlaylistExtractor) getPlaylistID(ctx context.Context, resourceName string) (string, error) {
 	playlistPage, err := s.client.CurrentUsersPlaylists(ctx)
 	if err != nil {
 		return "", err
@@ -50,7 +50,7 @@ func (s *SpotifyPlaylistExtractor) getPlaylistID(ctx context.Context, resourceNa
 	return "", errors.New("playlist not found")
 }
 
-func (s *SpotifyPlaylistExtractor) getPlaylistItems(ctx context.Context, resourceName, id string) (collection *domain.Collection, err error) {
+func (s *spotifyPlaylistExtractor) getPlaylistItems(ctx context.Context, resourceName, id string) (collection *domain.Collection, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("panic occurred: %v", r)
