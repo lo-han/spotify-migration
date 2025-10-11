@@ -38,9 +38,18 @@ func (u *youtubeJustInsert) insertAll(ctx context.Context, collectionID string, 
 }
 
 func (u *youtubeJustInsert) addItemToPlaylist(ctx context.Context, collectionID string, itemID string) error {
-	// Simulate adding an item to the playlist
-	if collectionID == "" || itemID == "" {
-		return nil
+	_, err := u.service.PlaylistItems.Insert([]string{"snippet"}, &youtube.PlaylistItem{
+		Snippet: &youtube.PlaylistItemSnippet{
+			PlaylistId: collectionID,
+			ResourceId: &youtube.ResourceId{
+				Kind:    "youtube#video",
+				VideoId: itemID,
+			},
+		},
+	}).Context(ctx).Do()
+
+	if err != nil {
+		return err
 	}
 	return nil
 }
