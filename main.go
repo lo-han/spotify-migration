@@ -10,9 +10,12 @@ import (
 	"spotify_migration/domain"
 	"spotify_migration/ports"
 	"spotify_migration/usecases"
+	"strings"
 
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/option"
 	"google.golang.org/api/youtube/v3"
 )
 
@@ -21,6 +24,23 @@ const (
 	REDIRECT_HOST     = "127.0.0.1:8080"
 	CODE_GET_RESOURCE = "/get-code"
 	REDIRECT_URL      = COMM_PROTOCOl + REDIRECT_HOST + CODE_GET_RESOURCE
+)
+
+var (
+	YOUTUBE_SCOPES = []string{
+		"https://www.googleapis.com/auth/youtube",
+		"https://www.googleapis.com/auth/youtube.channel-memberships.creator",
+		"https://www.googleapis.com/auth/youtube.force-ssl",
+		"https://www.googleapis.com/auth/youtube.readonly",
+		"https://www.googleapis.com/auth/youtube.upload",
+		"https://www.googleapis.com/auth/youtubepartner",
+		"https://www.googleapis.com/auth/youtubepartner-channel-audit",
+	}
+)
+
+const (
+	CERT_FILE = "server.crt"
+	KEY_FILE  = "server.key"
 )
 
 func main() {
@@ -35,13 +55,18 @@ func main() {
 		log.Println("selected migration not supported")
 		return
 	}
-
-	ctx := context.Background()
-
 	var spotify ports.IExtractor
 
-	auth, token := spotifyAuth(ctx)
-	youtubeService := youtubeService(ctx)
+	ctx := context.Background()
+	waitCode := make(chan string)
+
+	startRedirectServer(waitCode)
+
+	log.Println("Authorize Spotify: https://accounts.spotify.com/authorize?client_id=" + os.Getenv("SPOTIFY_ID") + "&response_type=code&redirect_uri=" + REDIRECT_URL)
+	log.Println("Authorize YouTube: https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=" + os.Getenv("YOUTUBE_ID") + "&redirect_uri=" + REDIRECT_URL + "&access_type=offline&scope=" + strings.Join(YOUTUBE_SCOPES, "+"))
+
+	auth, token := spotifyAuth(ctx, waitCode)
+	youtubeService := youtubeService(ctx, waitCode)
 
 	youtube := importer.NewYoutubeImporter(youtubeService)
 
@@ -59,38 +84,53 @@ func main() {
 	}
 }
 
-func spotifyAuth(ctx context.Context) (*spotifyauth.Authenticator, *oauth2.Token) {
-	waitToReceiveCode := make(chan string)
-	var code string
-
-	http.HandleFunc(CODE_GET_RESOURCE, func(w http.ResponseWriter, r *http.Request) {
-		values := r.URL.Query()
-		waitToReceiveCode <- values.Get("code")
-	})
-
-	go http.ListenAndServeTLS(REDIRECT_HOST, "server.crt", "server.key", nil)
-
+func spotifyAuth(ctx context.Context, waitSpotifyCode <-chan string) (*spotifyauth.Authenticator, *oauth2.Token) {
 	auth := spotifyauth.New(
 		spotifyauth.WithScopes(spotifyauth.ScopeUserReadPrivate),
 		spotifyauth.WithRedirectURL(REDIRECT_URL),
 	)
 
-	log.Println("https://accounts.spotify.com/authorize?client_id=" + os.Getenv("SPOTIFY_ID") + "&response_type=code&redirect_uri=" + REDIRECT_URL)
-
-	code = <-waitToReceiveCode
+	code := <-waitSpotifyCode
 
 	token, err := auth.Exchange(ctx, code)
 	if err != nil {
-		log.Fatal("could not exchange code")
+		log.Fatal("could not exchange spotify code")
 	}
 
 	return auth, token
 }
 
-func youtubeService(ctx context.Context) *youtube.Service {
-	youtubeService, err := youtube.NewService(ctx)
+func youtubeService(ctx context.Context, waitYoutubeCode <-chan string) *youtube.Service {
+	config := &oauth2.Config{
+		ClientID:     os.Getenv("YOUTUBE_ID"),
+		ClientSecret: os.Getenv("YOUTUBE_SECRET"),
+		RedirectURL:  REDIRECT_URL,
+		Endpoint:     google.Endpoint,
+	}
+
+	code := <-waitYoutubeCode
+
+	token, err := config.Exchange(ctx, code)
+	if err != nil {
+		log.Fatal("could not exchange youtube code")
+	}
+
+	youtubeService, err := youtube.NewService(ctx, option.WithTokenSource(config.TokenSource(ctx, token)))
+
 	if err != nil {
 		log.Fatal("could not get youtube service")
 	}
 	return youtubeService
+}
+
+func startRedirectServer(waitToReceiveCode chan<- string) {
+	http.HandleFunc(CODE_GET_RESOURCE, func(w http.ResponseWriter, r *http.Request) {
+		values := r.URL.Query()
+		waitToReceiveCode <- values.Get("code")
+		log.Println("code received!")
+	})
+
+	server := &http.Server{Addr: REDIRECT_HOST}
+
+	go server.ListenAndServeTLS(CERT_FILE, KEY_FILE)
 }

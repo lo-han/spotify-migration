@@ -17,26 +17,28 @@ openssl req -new -x509 -sha256 -key server.key -out server.crt -days 3650
 
 ### Spotify
 
-Register in https://developer.spotify.com/dashboard.
-Then add your client id and secret to a new `.env` file.
-
-Example:
-
-```
-SPOTIFY_ID=<id>
-SPOTIFY_SECRET=<secret>
-```
-
-![alt text](/assets/image.png)
-
+Register at https://developer.spotify.com/dashboard.
 
 ### Youtube
 
-_**Note**: Currently not working!!_
+1. Register a new resource at https://console.cloud.google.com/cloud-resource-manager
+2. Register a new client at https://console.cloud.google.com/auth/clients
+3. Add Youtube API V3 scope to the new client at https://console.cloud.google.com/auth/scopes
 
 ### Environment
 
-Run
+After Youtube and Spotify setup, add your credentials to a new `.env` file, like the following:
+
+```
+SPOTIFY_ID=
+SPOTIFY_SECRET=
+
+YOUTUBE_ID=
+YOUTUBE_SECRET=
+```
+
+Then export your environment
+
 ``` bash
 export $(cat .env | xargs)
 ```
@@ -46,15 +48,15 @@ export $(cat .env | xargs)
 Migrate playlist
 
 ``` bash
-go run . playlist <your_playlist_name>
+go run . playlist "<your_playlist_name>"
 ```
 
 Migrate album
 ``` bash
-go run . album <album_name>
+go run . album "<album_name>"
 ```
 
-And click the link in terminal to authenticate Spotify
+_**Note**:You must authorize both Spotify and Youtube clicking the printed CLI links_
 
 ## Contributing
 
