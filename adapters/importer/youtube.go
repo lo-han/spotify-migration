@@ -2,6 +2,7 @@ package importer
 
 import (
 	"context"
+	"log"
 	"spotify_migration/adapters/importing_strategy"
 	searching_strategy "spotify_migration/adapters/search_strategy"
 	"spotify_migration/domain"
@@ -34,12 +35,14 @@ func (s *youtubeImporter) Import(ctx context.Context, collection *domain.Collect
 	}
 
 	if collectionID == "" {
+		log.Println("Collection", collection.Name, "does not exist. Creating it...")
 		collectionID, err = s.createCollection(ctx, collection.Name)
 		if err != nil {
 			return false, err
 		}
 		s.updater = importing_strategy.NewYoutubeJustInsert(s.service)
 	} else {
+		log.Println("Collection", collection.Name, "already exists. Updating it...")
 		s.updater = importing_strategy.NewYoutubeDeleteToInsert(s.service)
 	}
 
@@ -52,6 +55,8 @@ func (s *youtubeImporter) Import(ctx context.Context, collection *domain.Collect
 		}
 		itemIDs = append(itemIDs, itemID)
 	}
+	log.Println("Found", len(itemIDs), "items to import in collection", collection.Name)
+	log.Println("Importing items...")
 
 	err = s.updater.UpdateItems(ctx, collection.Name, collectionID, itemIDs)
 	if err != nil {
@@ -62,7 +67,7 @@ func (s *youtubeImporter) Import(ctx context.Context, collection *domain.Collect
 }
 
 func (s *youtubeImporter) checkIfCollectionExists(ctx context.Context, playlistName string) (collectionID string, err error) {
-	response, err := s.service.Playlists.List([]string{"id", "snippet"}).Context(ctx).Do()
+	response, err := s.service.Playlists.List([]string{"id", "snippet"}).Mine(true).Context(ctx).Do()
 	if err != nil {
 		return "", err
 	}

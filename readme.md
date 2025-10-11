@@ -4,35 +4,42 @@ Automation to migrate playlist or albums from Spotify to Youtube
 
 _**Note**: Currently album migration is not supported_
 
-## Environment setting
+## Setting
+
+### Server
+
+Create the necessary certificates to run local server
+
+```
+openssl genrsa -out server.key 2048
+openssl ecparam -genkey -name secp384r1 -out server.key
+```
 
 ### Spotify
 
-_**Note**: Currently code retrieval is being done manually_
-
-After register in https://developer.spotify.com/dashboard, you should call the following authorization path to retrieve a authorization code:
-
-```
-https://accounts.spotify.com/authorize?client_id=<your_client_id>&response_type=code&redirect_uri=https://open.spotify.com
-```
-
-![alt text](assets/image.png)
-
-Then add your client id, redirect uri, secret and returned code in a new `.env` file.
+Register in https://developer.spotify.com/dashboard.
+Then add your client id and secret to a new `.env` file.
 
 Example:
 
 ```
 SPOTIFY_ID=<id>
 SPOTIFY_SECRET=<secret>
-REDIRECT_URL=https://open.spotify.com
-SPOTIFY_AUTH_CODE=<code>
 ```
+
+![alt text](/assets/image.png)
+
 
 ### Youtube
 
-After creating a service account key in https://cloud.google.com/iam/docs/keys-create-delete, you should add it to a new `keyfile.json`, in spotify-migration root directory.
+_**Note**: Currently not working!!_
 
+### Environment
+
+Run
+``` bash
+export $(cat .env | xargs)
+```
 
 ## Run the app
 
@@ -46,6 +53,8 @@ Migrate album
 ``` bash
 go run . album <album_name>
 ```
+
+And click the link in terminal to authenticate Spotify
 
 ## Contributing
 

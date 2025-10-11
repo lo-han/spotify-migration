@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"spotify_migration/domain"
 	"spotify_migration/ports"
 
@@ -27,11 +28,13 @@ func (s *spotifyPlaylistExtractor) Extract(ctx context.Context, resourceName str
 	if err != nil {
 		return nil, err
 	}
+	log.Println("Found playlist", resourceName, "with ID:", playlistID)
 
 	playlistItems, err := s.getPlaylistItems(ctx, resourceName, playlistID)
 	if err != nil {
 		return nil, err
 	}
+	log.Println("Found", len(playlistItems.Musics), "items in playlist", resourceName)
 
 	return playlistItems, nil
 }

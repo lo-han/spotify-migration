@@ -1,4 +1,5 @@
 .env
-keyfile.json
+credentials.json
 .vscode
 __debug*
+server.*
