@@ -15,6 +15,7 @@ Example:
 ```
 SPOTIFY_ID=<id>
 SPOTIFY_SECRET=<secret>
+REDIRECT_URL=https://open.spotify.com
 ```
 
 ### Youtube
