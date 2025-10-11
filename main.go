@@ -60,7 +60,8 @@ func spotifyAuth(ctx context.Context) (*spotifyauth.Authenticator, *oauth2.Token
 
 	token, err := auth.Exchange(ctx, os.Getenv("SPOTIFY_AUTH_CODE"))
 	if err != nil {
-		panic("could not exchange code")
+		fmt.Println("could not exchange code")
+		os.Exit(1)
 	}
 
 	return auth, token
@@ -69,7 +70,8 @@ func spotifyAuth(ctx context.Context) (*spotifyauth.Authenticator, *oauth2.Token
 func youtubeService(ctx context.Context) *youtube.Service {
 	youtubeService, err := youtube.NewService(ctx, option.WithCredentialsFile("keyfile.json"))
 	if err != nil {
-		panic("could not get youtube service")
+		fmt.Println("could not get youtube service")
+		os.Exit(1)
 	}
 	return youtubeService
 }
