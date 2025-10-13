@@ -20,10 +20,12 @@ import (
 )
 
 const (
-	COMM_PROTOCOl     = "https://"
-	REDIRECT_HOST     = "127.0.0.1:8080"
-	CODE_GET_RESOURCE = "/get-code"
-	REDIRECT_URL      = COMM_PROTOCOl + REDIRECT_HOST + CODE_GET_RESOURCE
+	COMM_PROTOCOl             = "https://"
+	REDIRECT_HOST             = "127.0.0.1:8080"
+	GET_SPOTIFY_CODE_RESOURCE = "/get-spotify-code"
+	GET_YOUTUBE_CODE_RESOURCE = "/get-youtube-code"
+	REDIRECT_SPOTIFY_URL      = COMM_PROTOCOl + REDIRECT_HOST + GET_SPOTIFY_CODE_RESOURCE
+	REDIRECT_YOUTUBE_URL      = COMM_PROTOCOl + REDIRECT_HOST + GET_YOUTUBE_CODE_RESOURCE
 )
 
 var (
@@ -58,15 +60,21 @@ func main() {
 	var spotify ports.IExtractor
 
 	ctx := context.Background()
-	waitCode := make(chan string)
+	waitSpotifyCode := make(chan string)
+	defer close(waitSpotifyCode)
+	waitYoutubeCode := make(chan string)
+	defer close(waitYoutubeCode)
 
-	startRedirectServer(waitCode)
+	startRedirectServer(map[string]chan<- string{
+		GET_SPOTIFY_CODE_RESOURCE: waitSpotifyCode,
+		GET_YOUTUBE_CODE_RESOURCE: waitYoutubeCode,
+	})
 
-	log.Println("Authorize Spotify: https://accounts.spotify.com/authorize?client_id=" + os.Getenv("SPOTIFY_ID") + "&response_type=code&redirect_uri=" + REDIRECT_URL)
-	log.Println("Authorize YouTube: https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=" + os.Getenv("YOUTUBE_ID") + "&redirect_uri=" + REDIRECT_URL + "&access_type=offline&scope=" + strings.Join(YOUTUBE_SCOPES, "+"))
+	log.Println("Authorize Spotify: https://accounts.spotify.com/authorize?client_id=" + os.Getenv("SPOTIFY_ID") + "&response_type=code&redirect_uri=" + REDIRECT_SPOTIFY_URL)
+	log.Println("Authorize YouTube: https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=" + os.Getenv("YOUTUBE_ID") + "&redirect_uri=" + REDIRECT_YOUTUBE_URL + "&access_type=offline&scope=" + strings.Join(YOUTUBE_SCOPES, "+"))
 
-	auth, token := spotifyAuth(ctx, waitCode)
-	youtubeService := youtubeService(ctx, waitCode)
+	auth, token := spotifyAuth(ctx, waitSpotifyCode)
+	youtubeService := youtubeService(ctx, waitYoutubeCode)
 
 	youtube := importer.NewYoutubeImporter(youtubeService)
 
@@ -87,7 +95,7 @@ func main() {
 func spotifyAuth(ctx context.Context, waitSpotifyCode <-chan string) (*spotifyauth.Authenticator, *oauth2.Token) {
 	auth := spotifyauth.New(
 		spotifyauth.WithScopes(spotifyauth.ScopeUserReadPrivate),
-		spotifyauth.WithRedirectURL(REDIRECT_URL),
+		spotifyauth.WithRedirectURL(REDIRECT_SPOTIFY_URL),
 	)
 
 	code := <-waitSpotifyCode
@@ -104,7 +112,7 @@ func youtubeService(ctx context.Context, waitYoutubeCode <-chan string) *youtube
 	config := &oauth2.Config{
 		ClientID:     os.Getenv("YOUTUBE_ID"),
 		ClientSecret: os.Getenv("YOUTUBE_SECRET"),
-		RedirectURL:  REDIRECT_URL,
+		RedirectURL:  REDIRECT_YOUTUBE_URL,
 		Endpoint:     google.Endpoint,
 	}
 
@@ -123,11 +131,20 @@ func youtubeService(ctx context.Context, waitYoutubeCode <-chan string) *youtube
 	return youtubeService
 }
 
-func startRedirectServer(waitToReceiveCode chan<- string) {
-	http.HandleFunc(CODE_GET_RESOURCE, func(w http.ResponseWriter, r *http.Request) {
+func startRedirectServer(channelByResources map[string]chan<- string) {
+	waitSpotifyCode := channelByResources[GET_SPOTIFY_CODE_RESOURCE]
+	waitYoutubeCode := channelByResources[GET_YOUTUBE_CODE_RESOURCE]
+
+	http.HandleFunc(GET_SPOTIFY_CODE_RESOURCE, func(w http.ResponseWriter, r *http.Request) {
 		values := r.URL.Query()
-		waitToReceiveCode <- values.Get("code")
-		log.Println("code received!")
+		waitSpotifyCode <- values.Get("code")
+		log.Println("spotify code received!")
+	})
+
+	http.HandleFunc(GET_YOUTUBE_CODE_RESOURCE, func(w http.ResponseWriter, r *http.Request) {
+		values := r.URL.Query()
+		waitYoutubeCode <- values.Get("code")
+		log.Println("youtube code received!")
 	})
 
 	server := &http.Server{Addr: REDIRECT_HOST}
