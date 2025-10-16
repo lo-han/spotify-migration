@@ -3,3 +3,4 @@ credentials.json
 .vscode
 __debug*
 server.*
+adapters/*.json

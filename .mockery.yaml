@@ -1,0 +1,13 @@
+filename: "{{ .InterfaceName | snakecase | trimPrefix \"i_\" }}_mock.go"
+pkgname: "mocks"
+dir: "{{.InterfaceDir}}/mocks/"
+structname: "{{.InterfaceName}}"
+packages:
+  spotify_migration/domain:
+    config:
+      all: true
+      dir: mocks
+  spotify_migration/ports:
+    config:
+      all: true
+      dir: mocks

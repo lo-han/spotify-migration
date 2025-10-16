@@ -5,13 +5,12 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"spotify_migration/adapters/extractor"
-	"spotify_migration/adapters/importer"
+	"spotify_migration/adapters"
 	"spotify_migration/domain"
-	"spotify_migration/ports"
 	"spotify_migration/usecases"
 	"strings"
 
+	"github.com/zmb3/spotify/v2"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -57,7 +56,7 @@ func main() {
 		log.Println("selected migration not supported")
 		return
 	}
-	var spotify ports.IExtractor
+	var spotifyExtractor domain.IExtractorUsecase
 
 	ctx := context.Background()
 	waitSpotifyCode := make(chan string)
@@ -75,17 +74,22 @@ func main() {
 
 	auth, token := spotifyAuth(ctx, waitSpotifyCode)
 	youtubeService := youtubeService(ctx, waitYoutubeCode)
+	migrationState := adapters.NewMigrationState(resourceName)
 
-	youtube := importer.NewYoutubeImporter(youtubeService)
+	youtube := usecases.NewImporter(
+		adapters.NewYoutubeSearch(youtubeService),
+		adapters.NewYoutubeCollection(youtubeService),
+		adapters.NewYoutubeCollectionWriter(youtubeService),
+	)
 
 	switch resourceKind {
 	case domain.PlaylistKind:
-		spotify = extractor.NewSpotifyPlaylistExtractor(ctx, auth, token)
+		spotifyExtractor = usecases.NewPlaylistExtractor(ctx, adapters.NewSpotifyGetter(spotify.New(auth.Client(ctx, token))))
 	}
 
-	migration := usecases.NewMigration(spotify, youtube)
+	migration := domain.NewMigration(spotifyExtractor, youtube)
 
-	if ok, err := migration.Migrate(ctx, resourceName); err != nil {
+	if ok, err := migration.Migrate(ctx, resourceName, migrationState); err != nil {
 		log.Println("Error migrating resource:", err)
 	} else if ok {
 		log.Printf("%s migrated successfully: %s\n", resourceKind, resourceName)

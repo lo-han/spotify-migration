@@ -5,18 +5,20 @@ import (
 	"spotify_migration/domain"
 )
 
-type IExtractor interface {
-	Extract(ctx context.Context, resourceName string) (*domain.Collection, error)
+type ISourceGetter interface {
+	GetPlaylistID(ctx context.Context, resourceName string) (string, error)
+	GetPlaylistItems(ctx context.Context, resourceName, id string) (collection *domain.Collection, err error)
 }
 
-type IImporter interface {
-	Import(ctx context.Context, collection *domain.Collection) (bool, error)
-}
-
-type IImportingStrategy interface {
-	UpdateItems(ctx context.Context, resourceName string, collectionID string, itemIDs []string) error
-}
-
-type ISearchStrategy interface {
+type ITargetSearch interface {
 	SearchItem(ctx context.Context, music *domain.Music) (itemID string, err error)
+}
+
+type ITargetCollection interface {
+	CheckIfCollectionExists(ctx context.Context, playlistName string) (collectionID string, err error)
+	CreateCollection(ctx context.Context, name string) (collectionID string, err error)
+}
+
+type ITargetWriter interface {
+	AddItemToPlaylist(ctx context.Context, collectionID string, itemID string) error
 }
