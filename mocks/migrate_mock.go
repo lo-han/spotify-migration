@@ -6,7 +6,6 @@ package mocks
 
 import (
 	"context"
-	"spotify_migration/domain"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -39,8 +38,8 @@ func (_m *IMigrate) EXPECT() *IMigrate_Expecter {
 }
 
 // Migrate provides a mock function for the type IMigrate
-func (_mock *IMigrate) Migrate(ctx context.Context, resourceName string, migrationState domain.IMigrationStateRepository) (bool, error) {
-	ret := _mock.Called(ctx, resourceName, migrationState)
+func (_mock *IMigrate) Migrate(ctx context.Context, resourceName string) (bool, error) {
+	ret := _mock.Called(ctx, resourceName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Migrate")
@@ -48,16 +47,16 @@ func (_mock *IMigrate) Migrate(ctx context.Context, resourceName string, migrati
 
 	var r0 bool
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, domain.IMigrationStateRepository) (bool, error)); ok {
-		return returnFunc(ctx, resourceName, migrationState)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (bool, error)); ok {
+		return returnFunc(ctx, resourceName)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, domain.IMigrationStateRepository) bool); ok {
-		r0 = returnFunc(ctx, resourceName, migrationState)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) bool); ok {
+		r0 = returnFunc(ctx, resourceName)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string, domain.IMigrationStateRepository) error); ok {
-		r1 = returnFunc(ctx, resourceName, migrationState)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, resourceName)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -72,12 +71,11 @@ type IMigrate_Migrate_Call struct {
 // Migrate is a helper method to define mock.On call
 //   - ctx context.Context
 //   - resourceName string
-//   - migrationState domain.IMigrationStateRepository
-func (_e *IMigrate_Expecter) Migrate(ctx interface{}, resourceName interface{}, migrationState interface{}) *IMigrate_Migrate_Call {
-	return &IMigrate_Migrate_Call{Call: _e.mock.On("Migrate", ctx, resourceName, migrationState)}
+func (_e *IMigrate_Expecter) Migrate(ctx interface{}, resourceName interface{}) *IMigrate_Migrate_Call {
+	return &IMigrate_Migrate_Call{Call: _e.mock.On("Migrate", ctx, resourceName)}
 }
 
-func (_c *IMigrate_Migrate_Call) Run(run func(ctx context.Context, resourceName string, migrationState domain.IMigrationStateRepository)) *IMigrate_Migrate_Call {
+func (_c *IMigrate_Migrate_Call) Run(run func(ctx context.Context, resourceName string)) *IMigrate_Migrate_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -87,14 +85,9 @@ func (_c *IMigrate_Migrate_Call) Run(run func(ctx context.Context, resourceName 
 		if args[1] != nil {
 			arg1 = args[1].(string)
 		}
-		var arg2 domain.IMigrationStateRepository
-		if args[2] != nil {
-			arg2 = args[2].(domain.IMigrationStateRepository)
-		}
 		run(
 			arg0,
 			arg1,
-			arg2,
 		)
 	})
 	return _c
@@ -105,7 +98,7 @@ func (_c *IMigrate_Migrate_Call) Return(b bool, err error) *IMigrate_Migrate_Cal
 	return _c
 }
 
-func (_c *IMigrate_Migrate_Call) RunAndReturn(run func(ctx context.Context, resourceName string, migrationState domain.IMigrationStateRepository) (bool, error)) *IMigrate_Migrate_Call {
+func (_c *IMigrate_Migrate_Call) RunAndReturn(run func(ctx context.Context, resourceName string) (bool, error)) *IMigrate_Migrate_Call {
 	_c.Call.Return(run)
 	return _c
 }

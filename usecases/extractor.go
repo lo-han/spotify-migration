@@ -4,17 +4,16 @@ import (
 	"context"
 	"log"
 	"spotify_migration/domain"
-	"spotify_migration/ports"
 )
 
-func NewPlaylistExtractor(ctx context.Context, origin ports.ISourceGetter) domain.IExtractorUsecase {
+func NewPlaylistExtractor(ctx context.Context, origin ISourceGetter) domain.IExtractorUsecase {
 	return &spotifyPlaylistExtractor{
 		origin: origin,
 	}
 }
 
 type spotifyPlaylistExtractor struct {
-	origin ports.ISourceGetter
+	origin ISourceGetter
 }
 
 func (s *spotifyPlaylistExtractor) Extract(ctx context.Context, resourceName string) (*domain.Collection, error) {

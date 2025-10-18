@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"spotify_migration/domain"
-	"spotify_migration/ports"
+	"spotify_migration/usecases"
 
 	"github.com/zmb3/spotify/v2"
 )
@@ -14,7 +14,7 @@ type spotifyGetter struct {
 	client *spotify.Client
 }
 
-func NewSpotifyGetter(client *spotify.Client) ports.ISourceGetter {
+func NewSpotifyGetter(client *spotify.Client) usecases.ISourceGetter {
 	return &spotifyGetter{client: client}
 }
 

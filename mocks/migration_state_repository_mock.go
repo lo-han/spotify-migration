@@ -5,6 +5,8 @@
 package mocks
 
 import (
+	"spotify_migration/domain"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -35,20 +37,66 @@ func (_m *IMigrationStateRepository) EXPECT() *IMigrationStateRepository_Expecte
 	return &IMigrationStateRepository_Expecter{mock: &_m.Mock}
 }
 
+// AddItem provides a mock function for the type IMigrationStateRepository
+func (_mock *IMigrationStateRepository) AddItem(item *domain.Music, address string) {
+	_mock.Called(item, address)
+	return
+}
+
+// IMigrationStateRepository_AddItem_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddItem'
+type IMigrationStateRepository_AddItem_Call struct {
+	*mock.Call
+}
+
+// AddItem is a helper method to define mock.On call
+//   - item *domain.Music
+//   - address string
+func (_e *IMigrationStateRepository_Expecter) AddItem(item interface{}, address interface{}) *IMigrationStateRepository_AddItem_Call {
+	return &IMigrationStateRepository_AddItem_Call{Call: _e.mock.On("AddItem", item, address)}
+}
+
+func (_c *IMigrationStateRepository_AddItem_Call) Run(run func(item *domain.Music, address string)) *IMigrationStateRepository_AddItem_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 *domain.Music
+		if args[0] != nil {
+			arg0 = args[0].(*domain.Music)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *IMigrationStateRepository_AddItem_Call) Return() *IMigrationStateRepository_AddItem_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *IMigrationStateRepository_AddItem_Call) RunAndReturn(run func(item *domain.Music, address string)) *IMigrationStateRepository_AddItem_Call {
+	_c.Run(run)
+	return _c
+}
+
 // GetPendingItems provides a mock function for the type IMigrationStateRepository
-func (_mock *IMigrationStateRepository) GetPendingItems() []string {
+func (_mock *IMigrationStateRepository) GetPendingItems() map[string]string {
 	ret := _mock.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetPendingItems")
 	}
 
-	var r0 []string
-	if returnFunc, ok := ret.Get(0).(func() []string); ok {
+	var r0 map[string]string
+	if returnFunc, ok := ret.Get(0).(func() map[string]string); ok {
 		r0 = returnFunc()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]string)
+			r0 = ret.Get(0).(map[string]string)
 		}
 	}
 	return r0
@@ -71,12 +119,12 @@ func (_c *IMigrationStateRepository_GetPendingItems_Call) Run(run func()) *IMigr
 	return _c
 }
 
-func (_c *IMigrationStateRepository_GetPendingItems_Call) Return(strings []string) *IMigrationStateRepository_GetPendingItems_Call {
-	_c.Call.Return(strings)
+func (_c *IMigrationStateRepository_GetPendingItems_Call) Return(stringToString map[string]string) *IMigrationStateRepository_GetPendingItems_Call {
+	_c.Call.Return(stringToString)
 	return _c
 }
 
-func (_c *IMigrationStateRepository_GetPendingItems_Call) RunAndReturn(run func() []string) *IMigrationStateRepository_GetPendingItems_Call {
+func (_c *IMigrationStateRepository_GetPendingItems_Call) RunAndReturn(run func() map[string]string) *IMigrationStateRepository_GetPendingItems_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -7,7 +7,7 @@ packages:
     config:
       all: true
       dir: mocks
-  spotify_migration/ports:
+  spotify_migration/usecases:
     config:
       all: true
       dir: mocks

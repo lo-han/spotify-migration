@@ -4,14 +4,16 @@ import (
 	"context"
 	"log"
 	"spotify_migration/domain"
-	"spotify_migration/ports"
 )
 
 const (
 	API_LIMIT = 65
 )
 
-func NewImporter(searcher ports.ITargetSearch, collection ports.ITargetCollection, targetWriter ports.ITargetWriter, migrationState domain.IMigrationStateRepository) domain.IImporterUsecase {
+func NewImporter(
+	searcher ITargetSearch, collection ITargetCollection, targetWriter ITargetWriter, migrationState domain.IMigrationStateRepository,
+) domain.IImporterUsecase {
+
 	return &youtubeImporter{
 		searcher:       searcher,
 		collection:     collection,
@@ -22,9 +24,9 @@ func NewImporter(searcher ports.ITargetSearch, collection ports.ITargetCollectio
 }
 
 type youtubeImporter struct {
-	searcher       ports.ITargetSearch
-	collection     ports.ITargetCollection
-	targetWriter   ports.ITargetWriter
+	searcher       ITargetSearch
+	collection     ITargetCollection
+	targetWriter   ITargetWriter
 	apiLimit       int
 	searchedItems  int
 	migrationState domain.IMigrationStateRepository

@@ -2,7 +2,7 @@ package adapters
 
 import (
 	"context"
-	"spotify_migration/ports"
+	"spotify_migration/usecases"
 
 	"google.golang.org/api/youtube/v3"
 )
@@ -11,7 +11,7 @@ type youtubeCollection struct {
 	service *youtube.Service
 }
 
-func NewYoutubeCollection(service *youtube.Service) ports.ITargetCollection {
+func NewYoutubeCollection(service *youtube.Service) usecases.ITargetCollection {
 	return &youtubeCollection{service: service}
 }
 

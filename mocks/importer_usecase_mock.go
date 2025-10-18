@@ -39,8 +39,8 @@ func (_m *IImporterUsecase) EXPECT() *IImporterUsecase_Expecter {
 }
 
 // Import provides a mock function for the type IImporterUsecase
-func (_mock *IImporterUsecase) Import(ctx context.Context, collection *domain.Collection, migrationState domain.IMigrationStateRepository) (bool, error) {
-	ret := _mock.Called(ctx, collection, migrationState)
+func (_mock *IImporterUsecase) Import(ctx context.Context, collection *domain.Collection) (bool, error) {
+	ret := _mock.Called(ctx, collection)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Import")
@@ -48,16 +48,16 @@ func (_mock *IImporterUsecase) Import(ctx context.Context, collection *domain.Co
 
 	var r0 bool
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *domain.Collection, domain.IMigrationStateRepository) (bool, error)); ok {
-		return returnFunc(ctx, collection, migrationState)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *domain.Collection) (bool, error)); ok {
+		return returnFunc(ctx, collection)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *domain.Collection, domain.IMigrationStateRepository) bool); ok {
-		r0 = returnFunc(ctx, collection, migrationState)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *domain.Collection) bool); ok {
+		r0 = returnFunc(ctx, collection)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *domain.Collection, domain.IMigrationStateRepository) error); ok {
-		r1 = returnFunc(ctx, collection, migrationState)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *domain.Collection) error); ok {
+		r1 = returnFunc(ctx, collection)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -72,12 +72,11 @@ type IImporterUsecase_Import_Call struct {
 // Import is a helper method to define mock.On call
 //   - ctx context.Context
 //   - collection *domain.Collection
-//   - migrationState domain.IMigrationStateRepository
-func (_e *IImporterUsecase_Expecter) Import(ctx interface{}, collection interface{}, migrationState interface{}) *IImporterUsecase_Import_Call {
-	return &IImporterUsecase_Import_Call{Call: _e.mock.On("Import", ctx, collection, migrationState)}
+func (_e *IImporterUsecase_Expecter) Import(ctx interface{}, collection interface{}) *IImporterUsecase_Import_Call {
+	return &IImporterUsecase_Import_Call{Call: _e.mock.On("Import", ctx, collection)}
 }
 
-func (_c *IImporterUsecase_Import_Call) Run(run func(ctx context.Context, collection *domain.Collection, migrationState domain.IMigrationStateRepository)) *IImporterUsecase_Import_Call {
+func (_c *IImporterUsecase_Import_Call) Run(run func(ctx context.Context, collection *domain.Collection)) *IImporterUsecase_Import_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -87,14 +86,9 @@ func (_c *IImporterUsecase_Import_Call) Run(run func(ctx context.Context, collec
 		if args[1] != nil {
 			arg1 = args[1].(*domain.Collection)
 		}
-		var arg2 domain.IMigrationStateRepository
-		if args[2] != nil {
-			arg2 = args[2].(domain.IMigrationStateRepository)
-		}
 		run(
 			arg0,
 			arg1,
-			arg2,
 		)
 	})
 	return _c
@@ -105,7 +99,7 @@ func (_c *IImporterUsecase_Import_Call) Return(b bool, err error) *IImporterUsec
 	return _c
 }
 
-func (_c *IImporterUsecase_Import_Call) RunAndReturn(run func(ctx context.Context, collection *domain.Collection, migrationState domain.IMigrationStateRepository) (bool, error)) *IImporterUsecase_Import_Call {
+func (_c *IImporterUsecase_Import_Call) RunAndReturn(run func(ctx context.Context, collection *domain.Collection) (bool, error)) *IImporterUsecase_Import_Call {
 	_c.Call.Return(run)
 	return _c
 }
