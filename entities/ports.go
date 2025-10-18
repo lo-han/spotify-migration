@@ -5,10 +5,6 @@ import (
 	"spotify_migration/entities/data"
 )
 
-type IMigrate interface {
-	Migrate(ctx context.Context, resourceName string) (bool, error)
-}
-
 type IExtractorUsecase interface {
 	Extract(ctx context.Context, resourceName string) (*data.Collection, error)
 }

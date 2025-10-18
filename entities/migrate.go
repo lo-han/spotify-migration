@@ -10,7 +10,7 @@ type Migration struct {
 	Importer  IImporterUsecase
 }
 
-func NewMigration(extractor IExtractorUsecase, importer IImporterUsecase) IMigrate {
+func NewMigration(extractor IExtractorUsecase, importer IImporterUsecase) *Migration {
 	return &Migration{
 		Extractor: extractor,
 		Importer:  importer,
