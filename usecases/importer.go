@@ -3,7 +3,7 @@ package usecases
 import (
 	"context"
 	"log"
-	domain "spotify_migration/entities"
+	"spotify_migration/entities"
 	"spotify_migration/entities/data"
 )
 
@@ -12,8 +12,8 @@ const (
 )
 
 func NewImporter(
-	searcher ITargetSearch, collection ITargetCollection, targetWriter ITargetWriter, migrationState domain.IMigrationStateRepository,
-) domain.IImporterUsecase {
+	searcher ITargetSearch, collection ITargetCollection, targetWriter ITargetWriter, migrationState entities.IMigrationStateRepository,
+) entities.IImporterUsecase {
 
 	return &youtubeImporter{
 		searcher:       searcher,
@@ -30,7 +30,7 @@ type youtubeImporter struct {
 	targetWriter   ITargetWriter
 	apiLimit       int
 	searchedItems  int
-	migrationState domain.IMigrationStateRepository
+	migrationState entities.IMigrationStateRepository
 }
 
 func (s *youtubeImporter) Import(ctx context.Context, collection *data.Collection) (bool, error) {
@@ -82,7 +82,7 @@ func (s *youtubeImporter) getCollectionID(ctx context.Context, collection *data.
 }
 
 func (s *youtubeImporter) retrievePendingItems() (map[string]string, error) {
-	var itemIDs map[string]string
+	itemIDs := make(map[string]string)
 
 	exists, err := s.migrationState.Read()
 	if err != nil {
@@ -96,12 +96,14 @@ func (s *youtubeImporter) retrievePendingItems() (map[string]string, error) {
 }
 
 func (s *youtubeImporter) getNewItems(ctx context.Context, collection *data.Collection, itemIDs map[string]string) error {
+	defer s.migrationState.Save()
+
 	for _, music := range collection.Musics {
 		if s.searchedItems >= s.apiLimit {
 			break
 		}
 
-		id := domain.ID(music)
+		id := entities.ID(music)
 
 		if _, exists := itemIDs[id]; exists {
 			continue
@@ -124,6 +126,7 @@ func (s *youtubeImporter) insertAll(ctx context.Context, collectionID string, it
 	if collectionID == "" || len(itemIDs) == 0 {
 		return nil
 	}
+	defer s.migrationState.Save()
 
 	var insertedItems = 0
 
@@ -139,8 +142,6 @@ func (s *youtubeImporter) insertAll(ctx context.Context, collectionID string, it
 			break
 		}
 	}
-
-	s.migrationState.Save()
 
 	return nil
 }

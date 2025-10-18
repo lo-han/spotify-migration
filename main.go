@@ -7,7 +7,6 @@ import (
 	"os"
 	"spotify_migration/adapters"
 	"spotify_migration/entities"
-	domain "spotify_migration/entities"
 	"spotify_migration/entities/data"
 	"spotify_migration/usecases"
 	"strings"
@@ -89,7 +88,7 @@ func main() {
 		spotifyExtractor = usecases.NewPlaylistExtractor(adapters.NewSpotifyGetter(spotify.New(auth.Client(ctx, token))))
 	}
 
-	migration := domain.NewMigration(spotifyExtractor, youtube)
+	migration := entities.NewMigration(spotifyExtractor, youtube)
 
 	if ok, err := migration.Migrate(ctx, resourceName); err != nil {
 		log.Println("Error migrating resource:", err)
