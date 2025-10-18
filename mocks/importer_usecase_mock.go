@@ -6,7 +6,7 @@ package mocks
 
 import (
 	"context"
-	"spotify_migration/domain"
+	"spotify_migration/entities/data"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -39,7 +39,7 @@ func (_m *IImporterUsecase) EXPECT() *IImporterUsecase_Expecter {
 }
 
 // Import provides a mock function for the type IImporterUsecase
-func (_mock *IImporterUsecase) Import(ctx context.Context, collection *domain.Collection) (bool, error) {
+func (_mock *IImporterUsecase) Import(ctx context.Context, collection *data.Collection) (bool, error) {
 	ret := _mock.Called(ctx, collection)
 
 	if len(ret) == 0 {
@@ -48,15 +48,15 @@ func (_mock *IImporterUsecase) Import(ctx context.Context, collection *domain.Co
 
 	var r0 bool
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *domain.Collection) (bool, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *data.Collection) (bool, error)); ok {
 		return returnFunc(ctx, collection)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *domain.Collection) bool); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *data.Collection) bool); ok {
 		r0 = returnFunc(ctx, collection)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *domain.Collection) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *data.Collection) error); ok {
 		r1 = returnFunc(ctx, collection)
 	} else {
 		r1 = ret.Error(1)
@@ -71,20 +71,20 @@ type IImporterUsecase_Import_Call struct {
 
 // Import is a helper method to define mock.On call
 //   - ctx context.Context
-//   - collection *domain.Collection
+//   - collection *data.Collection
 func (_e *IImporterUsecase_Expecter) Import(ctx interface{}, collection interface{}) *IImporterUsecase_Import_Call {
 	return &IImporterUsecase_Import_Call{Call: _e.mock.On("Import", ctx, collection)}
 }
 
-func (_c *IImporterUsecase_Import_Call) Run(run func(ctx context.Context, collection *domain.Collection)) *IImporterUsecase_Import_Call {
+func (_c *IImporterUsecase_Import_Call) Run(run func(ctx context.Context, collection *data.Collection)) *IImporterUsecase_Import_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *domain.Collection
+		var arg1 *data.Collection
 		if args[1] != nil {
-			arg1 = args[1].(*domain.Collection)
+			arg1 = args[1].(*data.Collection)
 		}
 		run(
 			arg0,
@@ -99,7 +99,7 @@ func (_c *IImporterUsecase_Import_Call) Return(b bool, err error) *IImporterUsec
 	return _c
 }
 
-func (_c *IImporterUsecase_Import_Call) RunAndReturn(run func(ctx context.Context, collection *domain.Collection) (bool, error)) *IImporterUsecase_Import_Call {
+func (_c *IImporterUsecase_Import_Call) RunAndReturn(run func(ctx context.Context, collection *data.Collection) (bool, error)) *IImporterUsecase_Import_Call {
 	_c.Call.Return(run)
 	return _c
 }

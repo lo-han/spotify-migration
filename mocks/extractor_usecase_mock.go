@@ -6,7 +6,7 @@ package mocks
 
 import (
 	"context"
-	"spotify_migration/domain"
+	"spotify_migration/entities/data"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -39,23 +39,23 @@ func (_m *IExtractorUsecase) EXPECT() *IExtractorUsecase_Expecter {
 }
 
 // Extract provides a mock function for the type IExtractorUsecase
-func (_mock *IExtractorUsecase) Extract(ctx context.Context, resourceName string) (*domain.Collection, error) {
+func (_mock *IExtractorUsecase) Extract(ctx context.Context, resourceName string) (*data.Collection, error) {
 	ret := _mock.Called(ctx, resourceName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Extract")
 	}
 
-	var r0 *domain.Collection
+	var r0 *data.Collection
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*domain.Collection, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*data.Collection, error)); ok {
 		return returnFunc(ctx, resourceName)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *domain.Collection); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *data.Collection); ok {
 		r0 = returnFunc(ctx, resourceName)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*domain.Collection)
+			r0 = ret.Get(0).(*data.Collection)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
@@ -96,12 +96,12 @@ func (_c *IExtractorUsecase_Extract_Call) Run(run func(ctx context.Context, reso
 	return _c
 }
 
-func (_c *IExtractorUsecase_Extract_Call) Return(collection *domain.Collection, err error) *IExtractorUsecase_Extract_Call {
+func (_c *IExtractorUsecase_Extract_Call) Return(collection *data.Collection, err error) *IExtractorUsecase_Extract_Call {
 	_c.Call.Return(collection, err)
 	return _c
 }
 
-func (_c *IExtractorUsecase_Extract_Call) RunAndReturn(run func(ctx context.Context, resourceName string) (*domain.Collection, error)) *IExtractorUsecase_Extract_Call {
+func (_c *IExtractorUsecase_Extract_Call) RunAndReturn(run func(ctx context.Context, resourceName string) (*data.Collection, error)) *IExtractorUsecase_Extract_Call {
 	_c.Call.Return(run)
 	return _c
 }

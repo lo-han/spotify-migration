@@ -5,7 +5,7 @@
 package mocks
 
 import (
-	"spotify_migration/domain"
+	"spotify_migration/entities/data"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -38,7 +38,7 @@ func (_m *IMigrationStateRepository) EXPECT() *IMigrationStateRepository_Expecte
 }
 
 // AddItem provides a mock function for the type IMigrationStateRepository
-func (_mock *IMigrationStateRepository) AddItem(item *domain.Music, address string) {
+func (_mock *IMigrationStateRepository) AddItem(item *data.Music, address string) {
 	_mock.Called(item, address)
 	return
 }
@@ -49,17 +49,17 @@ type IMigrationStateRepository_AddItem_Call struct {
 }
 
 // AddItem is a helper method to define mock.On call
-//   - item *domain.Music
+//   - item *data.Music
 //   - address string
 func (_e *IMigrationStateRepository_Expecter) AddItem(item interface{}, address interface{}) *IMigrationStateRepository_AddItem_Call {
 	return &IMigrationStateRepository_AddItem_Call{Call: _e.mock.On("AddItem", item, address)}
 }
 
-func (_c *IMigrationStateRepository_AddItem_Call) Run(run func(item *domain.Music, address string)) *IMigrationStateRepository_AddItem_Call {
+func (_c *IMigrationStateRepository_AddItem_Call) Run(run func(item *data.Music, address string)) *IMigrationStateRepository_AddItem_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 *domain.Music
+		var arg0 *data.Music
 		if args[0] != nil {
-			arg0 = args[0].(*domain.Music)
+			arg0 = args[0].(*data.Music)
 		}
 		var arg1 string
 		if args[1] != nil {
@@ -78,7 +78,7 @@ func (_c *IMigrationStateRepository_AddItem_Call) Return() *IMigrationStateRepos
 	return _c
 }
 
-func (_c *IMigrationStateRepository_AddItem_Call) RunAndReturn(run func(item *domain.Music, address string)) *IMigrationStateRepository_AddItem_Call {
+func (_c *IMigrationStateRepository_AddItem_Call) RunAndReturn(run func(item *data.Music, address string)) *IMigrationStateRepository_AddItem_Call {
 	_c.Run(run)
 	return _c
 }

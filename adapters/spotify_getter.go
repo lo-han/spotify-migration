@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"spotify_migration/domain"
+	"spotify_migration/entities/data"
 	"spotify_migration/usecases"
 
 	"github.com/zmb3/spotify/v2"
@@ -32,14 +32,14 @@ func (s *spotifyGetter) GetPlaylistID(ctx context.Context, resourceName string) 
 	return "", errors.New("playlist not found")
 }
 
-func (s *spotifyGetter) GetPlaylistItems(ctx context.Context, resourceName, id string) (collection *domain.Collection, err error) {
+func (s *spotifyGetter) GetPlaylistItems(ctx context.Context, resourceName, id string) (collection *data.Collection, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("panic occurred: %v", r)
 		}
 	}()
 
-	collection = &domain.Collection{
+	collection = &data.Collection{
 		Name: resourceName,
 	}
 
@@ -51,7 +51,7 @@ func (s *spotifyGetter) GetPlaylistItems(ctx context.Context, resourceName, id s
 	for _, item := range itensPage.Items {
 		track := item.Track.Track.SimpleTrack
 
-		collection.Musics = append(collection.Musics, &domain.Music{
+		collection.Musics = append(collection.Musics, &data.Music{
 			Title:  track.Name,
 			Artist: track.Artists[0].Name,
 			Album:  track.Album.Name,

@@ -1,7 +1,8 @@
-package domain
+package entities
 
 import (
 	"context"
+	"spotify_migration/entities/data"
 )
 
 type IMigrate interface {
@@ -9,17 +10,17 @@ type IMigrate interface {
 }
 
 type IExtractorUsecase interface {
-	Extract(ctx context.Context, resourceName string) (*Collection, error)
+	Extract(ctx context.Context, resourceName string) (*data.Collection, error)
 }
 
 type IImporterUsecase interface {
-	Import(ctx context.Context, collection *Collection) (bool, error)
+	Import(ctx context.Context, collection *data.Collection) (bool, error)
 }
 
 type IMigrationStateRepository interface {
 	GetPendingItems() map[string]string
 	UpdateItemToMigrated(itemID string)
-	AddItem(item *Music, address string)
+	AddItem(item *data.Music, address string)
 	Read() (bool, error)
 	Save() error
 }

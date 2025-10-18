@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"spotify_migration/domain"
+	domain "spotify_migration/entities"
+	"spotify_migration/entities/data"
 )
 
 const (
@@ -59,7 +60,7 @@ func (m *MigrationState) UpdateItemToMigrated(itemID string) {
 	}
 }
 
-// func (m *MigrationState) UpdateItemToMigrated(item *domain.Music) {
+// func (m *MigrationState) UpdateItemToMigrated(item *data.Music) {
 // 	if m.items != nil {
 // 		currentState, exists := m.items[domain.ID(item)]
 
@@ -73,7 +74,7 @@ func (m *MigrationState) UpdateItemToMigrated(itemID string) {
 // 	}
 // }
 
-func (m *MigrationState) AddItem(item *domain.Music, address string) {
+func (m *MigrationState) AddItem(item *data.Music, address string) {
 	if m.items != nil {
 
 		itemID := domain.ID(item)

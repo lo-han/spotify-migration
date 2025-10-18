@@ -6,7 +6,7 @@ package mocks
 
 import (
 	"context"
-	"spotify_migration/domain"
+	"spotify_migration/entities/data"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -39,7 +39,7 @@ func (_m *ITargetSearch) EXPECT() *ITargetSearch_Expecter {
 }
 
 // SearchItem provides a mock function for the type ITargetSearch
-func (_mock *ITargetSearch) SearchItem(ctx context.Context, music *domain.Music) (string, error) {
+func (_mock *ITargetSearch) SearchItem(ctx context.Context, music *data.Music) (string, error) {
 	ret := _mock.Called(ctx, music)
 
 	if len(ret) == 0 {
@@ -48,15 +48,15 @@ func (_mock *ITargetSearch) SearchItem(ctx context.Context, music *domain.Music)
 
 	var r0 string
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *domain.Music) (string, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *data.Music) (string, error)); ok {
 		return returnFunc(ctx, music)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *domain.Music) string); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *data.Music) string); ok {
 		r0 = returnFunc(ctx, music)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *domain.Music) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *data.Music) error); ok {
 		r1 = returnFunc(ctx, music)
 	} else {
 		r1 = ret.Error(1)
@@ -71,20 +71,20 @@ type ITargetSearch_SearchItem_Call struct {
 
 // SearchItem is a helper method to define mock.On call
 //   - ctx context.Context
-//   - music *domain.Music
+//   - music *data.Music
 func (_e *ITargetSearch_Expecter) SearchItem(ctx interface{}, music interface{}) *ITargetSearch_SearchItem_Call {
 	return &ITargetSearch_SearchItem_Call{Call: _e.mock.On("SearchItem", ctx, music)}
 }
 
-func (_c *ITargetSearch_SearchItem_Call) Run(run func(ctx context.Context, music *domain.Music)) *ITargetSearch_SearchItem_Call {
+func (_c *ITargetSearch_SearchItem_Call) Run(run func(ctx context.Context, music *data.Music)) *ITargetSearch_SearchItem_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *domain.Music
+		var arg1 *data.Music
 		if args[1] != nil {
-			arg1 = args[1].(*domain.Music)
+			arg1 = args[1].(*data.Music)
 		}
 		run(
 			arg0,
@@ -99,7 +99,7 @@ func (_c *ITargetSearch_SearchItem_Call) Return(itemID string, err error) *ITarg
 	return _c
 }
 
-func (_c *ITargetSearch_SearchItem_Call) RunAndReturn(run func(ctx context.Context, music *domain.Music) (string, error)) *ITargetSearch_SearchItem_Call {
+func (_c *ITargetSearch_SearchItem_Call) RunAndReturn(run func(ctx context.Context, music *data.Music) (string, error)) *ITargetSearch_SearchItem_Call {
 	_c.Call.Return(run)
 	return _c
 }

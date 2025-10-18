@@ -3,7 +3,7 @@ package adapters
 import (
 	"context"
 	"errors"
-	"spotify_migration/domain"
+	"spotify_migration/entities/data"
 
 	"google.golang.org/api/youtube/v3"
 )
@@ -16,7 +16,7 @@ func NewYoutubeSearch(service *youtube.Service) *youtubeSearch {
 	return &youtubeSearch{service: service}
 }
 
-func (s *youtubeSearch) SearchItem(ctx context.Context, music *domain.Music) (itemID string, err error) {
+func (s *youtubeSearch) SearchItem(ctx context.Context, music *data.Music) (itemID string, err error) {
 	call := s.service.Search.List([]string{"id", "snippet"}).Q(s.buildSearchQuery(music)).MaxResults(1).
 		Type("video").Context(ctx)
 
@@ -33,6 +33,6 @@ func (s *youtubeSearch) SearchItem(ctx context.Context, music *domain.Music) (it
 	return itemID, nil
 }
 
-func (s *youtubeSearch) buildSearchQuery(music *domain.Music) string {
+func (s *youtubeSearch) buildSearchQuery(music *data.Music) string {
 	return music.Title + " " + music.Artist + " " + music.Album + " audio"
 }

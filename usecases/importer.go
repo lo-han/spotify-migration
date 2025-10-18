@@ -3,7 +3,8 @@ package usecases
 import (
 	"context"
 	"log"
-	"spotify_migration/domain"
+	domain "spotify_migration/entities"
+	"spotify_migration/entities/data"
 )
 
 const (
@@ -32,7 +33,7 @@ type youtubeImporter struct {
 	migrationState domain.IMigrationStateRepository
 }
 
-func (s *youtubeImporter) Import(ctx context.Context, collection *domain.Collection) (bool, error) {
+func (s *youtubeImporter) Import(ctx context.Context, collection *data.Collection) (bool, error) {
 	if collection == nil {
 		return false, nil
 	}
@@ -63,7 +64,7 @@ func (s *youtubeImporter) Import(ctx context.Context, collection *domain.Collect
 	return true, nil
 }
 
-func (s *youtubeImporter) getCollectionID(ctx context.Context, collection *domain.Collection) (string, error) {
+func (s *youtubeImporter) getCollectionID(ctx context.Context, collection *data.Collection) (string, error) {
 	collectionID, err := s.collection.CheckIfCollectionExists(ctx, collection.Name)
 	if err != nil {
 		return "", err
@@ -94,7 +95,7 @@ func (s *youtubeImporter) retrievePendingItems() (map[string]string, error) {
 	return itemIDs, nil
 }
 
-func (s *youtubeImporter) getNewItems(ctx context.Context, collection *domain.Collection, itemIDs map[string]string) error {
+func (s *youtubeImporter) getNewItems(ctx context.Context, collection *data.Collection, itemIDs map[string]string) error {
 	for _, music := range collection.Musics {
 		if s.searchedItems >= s.apiLimit {
 			break

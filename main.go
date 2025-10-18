@@ -6,7 +6,9 @@ import (
 	"net/http"
 	"os"
 	"spotify_migration/adapters"
-	"spotify_migration/domain"
+	"spotify_migration/entities"
+	domain "spotify_migration/entities"
+	"spotify_migration/entities/data"
 	"spotify_migration/usecases"
 	"strings"
 
@@ -52,11 +54,11 @@ func main() {
 	resourceKind := os.Args[1]
 	resourceName := os.Args[2]
 
-	if resourceKind != domain.PlaylistKind {
+	if resourceKind != data.PlaylistKind {
 		log.Println("selected migration not supported")
 		return
 	}
-	var spotifyExtractor domain.IExtractorUsecase
+	var spotifyExtractor entities.IExtractorUsecase
 
 	ctx := context.Background()
 	waitSpotifyCode := make(chan string)
@@ -83,7 +85,7 @@ func main() {
 	)
 
 	switch resourceKind {
-	case domain.PlaylistKind:
+	case data.PlaylistKind:
 		spotifyExtractor = usecases.NewPlaylistExtractor(ctx, adapters.NewSpotifyGetter(spotify.New(auth.Client(ctx, token))))
 	}
 

@@ -2,16 +2,16 @@ package usecases
 
 import (
 	"context"
-	"spotify_migration/domain"
+	"spotify_migration/entities/data"
 )
 
 type ISourceGetter interface {
 	GetPlaylistID(ctx context.Context, resourceName string) (string, error)
-	GetPlaylistItems(ctx context.Context, resourceName, id string) (collection *domain.Collection, err error)
+	GetPlaylistItems(ctx context.Context, resourceName, id string) (collection *data.Collection, err error)
 }
 
 type ITargetSearch interface {
-	SearchItem(ctx context.Context, music *domain.Music) (itemID string, err error)
+	SearchItem(ctx context.Context, music *data.Music) (itemID string, err error)
 }
 
 type ITargetCollection interface {

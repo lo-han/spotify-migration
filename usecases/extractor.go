@@ -3,7 +3,8 @@ package usecases
 import (
 	"context"
 	"log"
-	"spotify_migration/domain"
+	domain "spotify_migration/entities"
+	"spotify_migration/entities/data"
 )
 
 func NewPlaylistExtractor(ctx context.Context, origin ISourceGetter) domain.IExtractorUsecase {
@@ -16,7 +17,7 @@ type spotifyPlaylistExtractor struct {
 	origin ISourceGetter
 }
 
-func (s *spotifyPlaylistExtractor) Extract(ctx context.Context, resourceName string) (*domain.Collection, error) {
+func (s *spotifyPlaylistExtractor) Extract(ctx context.Context, resourceName string) (*data.Collection, error) {
 	playlistID, err := s.origin.GetPlaylistID(ctx, resourceName)
 	if err != nil {
 		return nil, err

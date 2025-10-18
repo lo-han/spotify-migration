@@ -3,7 +3,7 @@ pkgname: "mocks"
 dir: "{{.InterfaceDir}}/mocks/"
 structname: "{{.InterfaceName}}"
 packages:
-  spotify_migration/domain:
+  spotify_migration/entities:
     config:
       all: true
       dir: mocks
