@@ -14,8 +14,8 @@ const (
 )
 
 type state struct {
-	state   int
-	address string
+	State   int    `json:"state"`
+	Address string `json:"address"`
 }
 
 func migrated(state int) bool {
@@ -38,8 +38,8 @@ func (m *MigrationState) GetPendingItems() map[string]string {
 	pendingItems := make(map[string]string)
 
 	for id, state := range m.items {
-		if !migrated(state.state) {
-			pendingItems[id] = state.address
+		if !migrated(state.State) {
+			pendingItems[id] = state.Address
 		}
 	}
 	return pendingItems
@@ -53,8 +53,8 @@ func (m *MigrationState) UpdateItemToMigrated(itemID string) {
 			return
 		}
 		m.items[itemID] = state{
-			state:   migratedState,
-			address: currentState.address,
+			State:   migratedState,
+			Address: currentState.Address,
 		}
 	}
 }
@@ -83,8 +83,8 @@ func (m *MigrationState) AddItem(item *domain.Music, address string) {
 		}
 
 		m.items[itemID] = state{
-			state:   pendingState,
-			address: address,
+			State:   pendingState,
+			Address: address,
 		}
 	}
 }
