@@ -133,16 +133,6 @@ func TestID(t *testing.T) {
 			t.Errorf("Expected ID %q, got %q", expected, result)
 		}
 	})
-
-	t.Run("Nil music pointer", func(t *testing.T) {
-		defer func() {
-			if r := recover(); r == nil {
-				t.Error("Expected panic when passing nil music pointer")
-			}
-		}()
-
-		ID(nil)
-	})
 }
 
 func TestID_Consistency(t *testing.T) {

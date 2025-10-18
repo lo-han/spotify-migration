@@ -207,7 +207,8 @@ func TestYoutubeImporter_retrievePendingItems_StateDoesNotExist(t *testing.T) {
 	items, err := importer.retrievePendingItems()
 
 	assert.NoError(t, err)
-	assert.Nil(t, items)
+	assert.NotNil(t, items)
+	assert.Len(t, items, 0)
 }
 
 func TestYoutubeImporter_retrievePendingItems_ReadError(t *testing.T) {
@@ -249,6 +250,7 @@ func TestYoutubeImporter_getNewItems_Success(t *testing.T) {
 	mockSearcher.On("SearchItem", ctx, collection.Musics[1]).Return("youtube_id_2", nil)
 	mockMigrationState.On("AddItem", collection.Musics[0], "youtube_id_1").Return()
 	mockMigrationState.On("AddItem", collection.Musics[1], "youtube_id_2").Return()
+	mockMigrationState.On("Save").Return(nil)
 
 	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
@@ -283,6 +285,7 @@ func TestYoutubeImporter_getNewItems_WithExistingItems(t *testing.T) {
 
 	mockSearcher.On("SearchItem", ctx, collection.Musics[1]).Return("youtube_id_2", nil)
 	mockMigrationState.On("AddItem", collection.Musics[1], "youtube_id_2").Return()
+	mockMigrationState.On("Save").Return(nil)
 
 	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
@@ -312,6 +315,7 @@ func TestYoutubeImporter_getNewItems_APILimitReached(t *testing.T) {
 
 	mockSearcher.On("SearchItem", ctx, collection.Musics[0]).Return("youtube_id_1", nil)
 	mockMigrationState.On("AddItem", collection.Musics[0], "youtube_id_1").Return()
+	mockMigrationState.On("Save").Return(nil)
 
 	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 	importer.apiLimit = 1
@@ -339,6 +343,7 @@ func TestYoutubeImporter_getNewItems_SearchError(t *testing.T) {
 	mockMigrationState := mocks.NewIMigrationStateRepository(t)
 
 	mockSearcher.On("SearchItem", ctx, collection.Musics[0]).Return("", expectedError)
+	mockMigrationState.On("Save").Return(nil)
 
 	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
@@ -424,6 +429,7 @@ func TestYoutubeImporter_insertAll_AddItemError(t *testing.T) {
 	mockMigrationState := mocks.NewIMigrationStateRepository(t)
 
 	mockTargetWriter.On("AddItemToPlaylist", ctx, collectionID, "youtube_id_1").Return(expectedError)
+	mockMigrationState.On("Save").Return(nil)
 
 	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
