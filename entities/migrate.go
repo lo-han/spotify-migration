@@ -2,6 +2,7 @@ package entities
 
 import (
 	"context"
+	"errors"
 )
 
 type Migration struct {
@@ -20,6 +21,10 @@ func (m *Migration) Migrate(ctx context.Context, resourceName string) (bool, err
 	resourceData, err := m.Extractor.Extract(ctx, resourceName)
 	if err != nil {
 		return false, err
+	}
+
+	if len(resourceData.Musics) == 0 {
+		return false, errors.New("nothing to migrate")
 	}
 
 	succeeded, err := m.Importer.Import(ctx, resourceData)

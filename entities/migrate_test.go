@@ -21,7 +21,15 @@ func TestMigration_Migrate(t *testing.T) {
 
 		migration := NewMigration(extractorMock, importerMock)
 
-		collection := &data.Collection{}
+		collection := &data.Collection{
+			Musics: []*data.Music{
+				{
+					Title:  "Song 1",
+					Artist: "Artist 1",
+					Album:  "Album 1",
+				},
+			},
+		}
 
 		extractorMock.On("Extract", ctx, resourceName).Return(collection, nil)
 		importerMock.On("Import", ctx, collection).Return(true, nil)
@@ -41,7 +49,15 @@ func TestMigration_Migrate(t *testing.T) {
 
 		migration := NewMigration(extractorMock, importerMock)
 
-		collection := &data.Collection{}
+		collection := &data.Collection{
+			Musics: []*data.Music{
+				{
+					Title:  "Song 1",
+					Artist: "Artist 1",
+					Album:  "Album 1",
+				},
+			},
+		}
 
 		extractorMock.On("Extract", ctx, resourceName).Return(collection, nil)
 		importerMock.On("Import", ctx, collection).Return(false, nil)
@@ -61,7 +77,15 @@ func TestMigration_Migrate(t *testing.T) {
 
 		migration := NewMigration(extractorMock, importerMock)
 
-		collection := &data.Collection{}
+		collection := &data.Collection{
+			Musics: []*data.Music{
+				{
+					Title:  "Song 1",
+					Artist: "Artist 1",
+					Album:  "Album 1",
+				},
+			},
+		}
 
 		extractorMock.On("Extract", ctx, resourceName).Return(collection, nil)
 		importerMock.On("Import", ctx, collection).Return(false, nil)
@@ -81,7 +105,15 @@ func TestMigration_Migrate(t *testing.T) {
 
 		migration := NewMigration(extractorMock, importerMock)
 
-		collection := &data.Collection{}
+		collection := &data.Collection{
+			Musics: []*data.Music{
+				{
+					Title:  "Song 1",
+					Artist: "Artist 1",
+					Album:  "Album 1",
+				},
+			},
+		}
 
 		expectedError := errors.New("import error")
 
@@ -94,4 +126,23 @@ func TestMigration_Migrate(t *testing.T) {
 		assert.False(t, succeeded)
 	})
 
+	t.Run("should return error if export found nothing", func(t *testing.T) {
+		ctx := context.Background()
+		resourceName := "test_playlist"
+
+		extractorMock := mocks.NewIExtractorUsecase(t)
+		importerMock := mocks.NewIImporterUsecase(t)
+
+		migration := NewMigration(extractorMock, importerMock)
+
+		collection := &data.Collection{}
+
+		extractorMock.On("Extract", ctx, resourceName).Return(collection, nil)
+
+		succeeded, err := migration.Migrate(ctx, resourceName)
+
+		assert.Error(t, err)
+		assert.Equal(t, "nothing to migrate", err.Error())
+		assert.False(t, succeeded)
+	})
 }

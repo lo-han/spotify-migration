@@ -6,6 +6,14 @@ import (
 )
 
 func TestID(t *testing.T) {
+	t.Run("Should return empty if music is nil", func(t *testing.T) {
+		var music *data.Music = nil
+		result := ID(music)
+		if result != "" {
+			t.Errorf("Expected empty string for nil music, got %q", result)
+		}
+	})
+
 	t.Run("Standard music with all fields", func(t *testing.T) {
 		music := &data.Music{
 			Title:  "Bohemian Rhapsody",

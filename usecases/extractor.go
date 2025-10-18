@@ -7,7 +7,7 @@ import (
 	"spotify_migration/entities/data"
 )
 
-func NewPlaylistExtractor(ctx context.Context, origin ISourceGetter) domain.IExtractorUsecase {
+func NewPlaylistExtractor(origin ISourceGetter) domain.IExtractorUsecase {
 	return &spotifyPlaylistExtractor{
 		origin: origin,
 	}

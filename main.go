@@ -86,7 +86,7 @@ func main() {
 
 	switch resourceKind {
 	case data.PlaylistKind:
-		spotifyExtractor = usecases.NewPlaylistExtractor(ctx, adapters.NewSpotifyGetter(spotify.New(auth.Client(ctx, token))))
+		spotifyExtractor = usecases.NewPlaylistExtractor(adapters.NewSpotifyGetter(spotify.New(auth.Client(ctx, token))))
 	}
 
 	migration := domain.NewMigration(spotifyExtractor, youtube)
