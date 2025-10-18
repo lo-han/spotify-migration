@@ -5,7 +5,7 @@ import (
 )
 
 type IMigrate interface {
-	Migrate(ctx context.Context, resourceName string, migrationState IMigrationStateRepository) (bool, error)
+	Migrate(ctx context.Context, resourceName string) (bool, error)
 }
 
 type IExtractorUsecase interface {
@@ -13,12 +13,13 @@ type IExtractorUsecase interface {
 }
 
 type IImporterUsecase interface {
-	Import(ctx context.Context, collection *Collection, migrationState IMigrationStateRepository) (bool, error)
+	Import(ctx context.Context, collection *Collection) (bool, error)
 }
 
 type IMigrationStateRepository interface {
-	GetPendingItems() []string
+	GetPendingItems() map[string]string
 	UpdateItemToMigrated(itemID string)
+	AddItem(item *Music, address string)
 	Read() (bool, error)
 	Save() error
 }

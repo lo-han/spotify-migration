@@ -74,12 +74,12 @@ func main() {
 
 	auth, token := spotifyAuth(ctx, waitSpotifyCode)
 	youtubeService := youtubeService(ctx, waitYoutubeCode)
-	migrationState := adapters.NewMigrationState(resourceName)
 
 	youtube := usecases.NewImporter(
 		adapters.NewYoutubeSearch(youtubeService),
 		adapters.NewYoutubeCollection(youtubeService),
 		adapters.NewYoutubeCollectionWriter(youtubeService),
+		adapters.NewMigrationState(resourceName),
 	)
 
 	switch resourceKind {
@@ -89,7 +89,7 @@ func main() {
 
 	migration := domain.NewMigration(spotifyExtractor, youtube)
 
-	if ok, err := migration.Migrate(ctx, resourceName, migrationState); err != nil {
+	if ok, err := migration.Migrate(ctx, resourceName); err != nil {
 		log.Println("Error migrating resource:", err)
 	} else if ok {
 		log.Printf("%s migrated successfully: %s\n", resourceKind, resourceName)

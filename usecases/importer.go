@@ -11,45 +11,49 @@ const (
 	API_LIMIT = 65
 )
 
-func NewImporter(searcher ports.ITargetSearch, collection ports.ITargetCollection, targetWriter ports.ITargetWriter) domain.IImporterUsecase {
+func NewImporter(searcher ports.ITargetSearch, collection ports.ITargetCollection, targetWriter ports.ITargetWriter, migrationState domain.IMigrationStateRepository) domain.IImporterUsecase {
 	return &youtubeImporter{
-		searcher:     searcher,
-		collection:   collection,
-		apiLimit:     API_LIMIT,
-		targetWriter: targetWriter,
+		searcher:       searcher,
+		collection:     collection,
+		apiLimit:       API_LIMIT,
+		targetWriter:   targetWriter,
+		migrationState: migrationState,
 	}
 }
 
 type youtubeImporter struct {
-	searcher     ports.ITargetSearch
-	collection   ports.ITargetCollection
-	targetWriter ports.ITargetWriter
-	apiLimit     int
+	searcher       ports.ITargetSearch
+	collection     ports.ITargetCollection
+	targetWriter   ports.ITargetWriter
+	apiLimit       int
+	searchedItems  int
+	migrationState domain.IMigrationStateRepository
 }
 
-func (s *youtubeImporter) Import(ctx context.Context, collection *domain.Collection, migrationState domain.IMigrationStateRepository) (bool, error) {
+func (s *youtubeImporter) Import(ctx context.Context, collection *domain.Collection) (bool, error) {
 	if collection == nil {
 		return false, nil
 	}
 
-	collectionID, err := s.checkIfCollectionExists(ctx, collection)
+	collectionID, err := s.getCollectionID(ctx, collection)
 	if err != nil {
 		return false, err
 	}
 
-	var itemIDs []string
-
-	for _, music := range collection.Musics {
-		itemID, err := s.searcher.SearchItem(ctx, music)
-		if err != nil {
-			return false, err
-		}
-		itemIDs = append(itemIDs, itemID)
+	itemIDs, err := s.retrievePendingItems()
+	if err != nil {
+		return false, err
 	}
+
+	err = s.getNewItems(ctx, collection, itemIDs)
+	if err != nil {
+		return false, err
+	}
+
 	log.Println("Found", len(itemIDs), "items to import in collection", collection.Name)
 	log.Println("Importing items...")
 
-	err = s.insertAll(ctx, migrationState, collectionID, itemIDs)
+	err = s.insertAll(ctx, collectionID, itemIDs)
 	if err != nil {
 		return false, err
 	}
@@ -57,7 +61,7 @@ func (s *youtubeImporter) Import(ctx context.Context, collection *domain.Collect
 	return true, nil
 }
 
-func (s *youtubeImporter) checkIfCollectionExists(ctx context.Context, collection *domain.Collection) (string, error) {
+func (s *youtubeImporter) getCollectionID(ctx context.Context, collection *domain.Collection) (string, error) {
 	collectionID, err := s.collection.CheckIfCollectionExists(ctx, collection.Name)
 	if err != nil {
 		return "", err
@@ -74,32 +78,66 @@ func (s *youtubeImporter) checkIfCollectionExists(ctx context.Context, collectio
 	return collectionID, nil
 }
 
-func (u *youtubeImporter) insertAll(ctx context.Context, migrationState domain.IMigrationStateRepository, collectionID string, itemIDs []string) error {
+func (s *youtubeImporter) retrievePendingItems() (map[string]string, error) {
+	var itemIDs map[string]string
+
+	exists, err := s.migrationState.Read()
+	if err != nil {
+		return nil, err
+	}
+	if exists {
+		itemIDs = s.migrationState.GetPendingItems()
+	}
+
+	return itemIDs, nil
+}
+
+func (s *youtubeImporter) getNewItems(ctx context.Context, collection *domain.Collection, itemIDs map[string]string) error {
+	for _, music := range collection.Musics {
+		if s.searchedItems >= s.apiLimit {
+			break
+		}
+
+		id := domain.ID(music)
+
+		if _, exists := itemIDs[id]; exists {
+			continue
+		}
+
+		itemAddress, err := s.searcher.SearchItem(ctx, music)
+		if err != nil {
+			return err
+		}
+
+		itemIDs[id] = itemAddress
+		s.migrationState.AddItem(music, itemAddress)
+
+		s.searchedItems++
+	}
+	return nil
+}
+
+func (s *youtubeImporter) insertAll(ctx context.Context, collectionID string, itemIDs map[string]string) error {
 	if collectionID == "" || len(itemIDs) == 0 {
 		return nil
 	}
 
-	exists, err := migrationState.Read()
-	if err != nil {
-		return err
-	}
-	if exists {
-		itemIDs = migrationState.GetPendingItems()
-	}
+	var insertedItems = 0
 
-	for index, itemID := range itemIDs {
-		if index == u.apiLimit-1 {
-			break
-		}
-
-		err := u.targetWriter.AddItemToPlaylist(ctx, collectionID, itemID)
+	for itemID, itemAddress := range itemIDs {
+		err := s.targetWriter.AddItemToPlaylist(ctx, collectionID, itemAddress)
 		if err != nil {
 			return err
 		}
-		migrationState.UpdateItemToMigrated(itemID)
+		s.migrationState.UpdateItemToMigrated(itemID)
+		insertedItems++
+
+		if insertedItems >= s.apiLimit {
+			break
+		}
 	}
 
-	migrationState.Save()
+	s.migrationState.Save()
 
 	return nil
 }

@@ -16,11 +16,11 @@ func NewMigration(extractor IExtractorUsecase, importer IImporterUsecase) IMigra
 	}
 }
 
-func (m *Migration) Migrate(ctx context.Context, resourceName string, migrationState IMigrationStateRepository) (bool, error) {
+func (m *Migration) Migrate(ctx context.Context, resourceName string) (bool, error) {
 	resourceData, err := m.Extractor.Extract(ctx, resourceName)
 	if err != nil {
 		return false, err
 	}
 
-	return m.Importer.Import(ctx, resourceData, migrationState)
+	return m.Importer.Import(ctx, resourceData)
 }

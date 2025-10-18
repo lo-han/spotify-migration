@@ -7,24 +7,39 @@ import (
 	"spotify_migration/domain"
 )
 
+const (
+	pendingState int = iota
+	migratedState
+	deletedState
+)
+
+type state struct {
+	state   int
+	address string
+}
+
+func migrated(state int) bool {
+	return state == migratedState
+}
+
 type MigrationState struct {
 	filename string
-	items    map[string]bool
+	items    map[string]state
 }
 
 func NewMigrationState(collectionID string) domain.IMigrationStateRepository {
 	return &MigrationState{
 		filename: fmt.Sprintf("%s_migration_state.json", collectionID),
-		items:    make(map[string]bool),
+		items:    make(map[string]state),
 	}
 }
 
-func (m *MigrationState) GetPendingItems() []string {
-	pendingItems := []string{}
+func (m *MigrationState) GetPendingItems() map[string]string {
+	pendingItems := make(map[string]string)
 
-	for item, migrated := range m.items {
-		if !migrated {
-			pendingItems = append(pendingItems, item)
+	for id, state := range m.items {
+		if !migrated(state.state) {
+			pendingItems[id] = state.address
 		}
 	}
 	return pendingItems
@@ -32,7 +47,45 @@ func (m *MigrationState) GetPendingItems() []string {
 
 func (m *MigrationState) UpdateItemToMigrated(itemID string) {
 	if m.items != nil {
-		m.items[itemID] = true
+		currentState, exists := m.items[itemID]
+
+		if !exists {
+			return
+		}
+		m.items[itemID] = state{
+			state:   migratedState,
+			address: currentState.address,
+		}
+	}
+}
+
+// func (m *MigrationState) UpdateItemToMigrated(item *domain.Music) {
+// 	if m.items != nil {
+// 		currentState, exists := m.items[domain.ID(item)]
+
+// 		if !exists {
+// 			return
+// 		}
+// 		m.items[domain.ID(item)] = state{
+// 			state:   migratedState,
+// 			address: currentState.address,
+// 		}
+// 	}
+// }
+
+func (m *MigrationState) AddItem(item *domain.Music, address string) {
+	if m.items != nil {
+
+		itemID := domain.ID(item)
+
+		if _, exists := m.items[itemID]; exists {
+			return
+		}
+
+		m.items[itemID] = state{
+			state:   pendingState,
+			address: address,
+		}
 	}
 }
 
