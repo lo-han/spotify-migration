@@ -7,7 +7,7 @@ import (
 	"spotify_migration/entities/data"
 	"spotify_migration/usecases"
 
-	"github.com/zmb3/spotify/v2"
+	"github.com/lo-han/spotify/v2"
 )
 
 type spotifyGetter struct {
