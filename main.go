@@ -11,8 +11,8 @@ import (
 	"spotify_migration/usecases"
 	"strings"
 
-	"github.com/zmb3/spotify/v2"
-	spotifyauth "github.com/zmb3/spotify/v2/auth"
+	"github.com/lo-han/spotify/v2"
+	spotifyauth "github.com/lo-han/spotify/v2/auth"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"

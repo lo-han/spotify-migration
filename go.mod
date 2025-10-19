@@ -3,8 +3,8 @@ module spotify_migration
 go 1.24.2
 
 require (
+	github.com/lo-han/spotify/v2 v2.0.0-20251019151426-2c1363e720e5
 	github.com/stretchr/testify v1.7.0
-	github.com/zmb3/spotify/v2 v2.4.3
 	golang.org/x/oauth2 v0.0.0-20210810183815-faf39c7919d5
 	google.golang.org/api v0.30.0
 )
