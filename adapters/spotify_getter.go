@@ -43,19 +43,26 @@ func (s *spotifyGetter) GetPlaylistItems(ctx context.Context, resourceName, id s
 		Name: resourceName,
 	}
 
-	itensPage, err := s.client.GetPlaylistItems(ctx, spotify.ID(id))
+	itemsPage, err := s.client.GetPlaylistItems(ctx, spotify.ID(id))
 	if err != nil {
 		return nil, err
 	}
 
-	for _, item := range itensPage.Items {
-		track := item.Track.Track.SimpleTrack
+	for ; itemsPage != nil; itemsPage, err = itemsPage.NextItems(ctx, s.client) {
 
-		collection.Musics = append(collection.Musics, &data.Music{
-			Title:  track.Name,
-			Artist: track.Artists[0].Name,
-			Album:  track.Album.Name,
-		})
+		if err != nil {
+			break
+		}
+
+		for _, item := range itemsPage.Items {
+			track := item.Track.Track.SimpleTrack
+
+			collection.Musics = append(collection.Musics, &data.Music{
+				Title:  track.Name,
+				Artist: track.Artists[0].Name,
+				Album:  track.Album.Name,
+			})
+		}
 	}
 
 	return collection, nil
