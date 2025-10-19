@@ -3,5 +3,5 @@ credentials.json
 .vscode
 __debug*
 server.*
-adapters/*.json
+*migration_state.json
 coverage.out
