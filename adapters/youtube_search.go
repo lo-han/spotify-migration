@@ -1,22 +1,22 @@
-package searching_strategy
+package adapters
 
 import (
 	"context"
 	"errors"
-	"spotify_migration/domain"
+	"spotify_migration/entities/data"
 
 	"google.golang.org/api/youtube/v3"
 )
 
-type StandardSearchStrategy struct {
+type youtubeSearch struct {
 	service *youtube.Service
 }
 
-func NewStandardSearchStrategy(service *youtube.Service) *StandardSearchStrategy {
-	return &StandardSearchStrategy{service: service}
+func NewYoutubeSearch(service *youtube.Service) *youtubeSearch {
+	return &youtubeSearch{service: service}
 }
 
-func (s *StandardSearchStrategy) SearchItem(ctx context.Context, music *domain.Music) (itemID string, err error) {
+func (s *youtubeSearch) SearchItem(ctx context.Context, music *data.Music) (itemID string, err error) {
 	call := s.service.Search.List([]string{"id", "snippet"}).Q(s.buildSearchQuery(music)).MaxResults(1).
 		Type("video").Context(ctx)
 
@@ -33,6 +33,6 @@ func (s *StandardSearchStrategy) SearchItem(ctx context.Context, music *domain.M
 	return itemID, nil
 }
 
-func (s *StandardSearchStrategy) buildSearchQuery(music *domain.Music) string {
+func (s *youtubeSearch) buildSearchQuery(music *data.Music) string {
 	return music.Title + " " + music.Artist + " " + music.Album + " audio"
 }

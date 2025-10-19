@@ -1,4 +1,4 @@
-package domain
+package data
 
 const (
 	PlaylistKind = "playlist"
