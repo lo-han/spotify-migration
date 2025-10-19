@@ -3,7 +3,6 @@ package adapters
 import (
 	"context"
 	"errors"
-	"fmt"
 	"spotify_migration/entities/data"
 	"spotify_migration/usecases"
 
@@ -33,11 +32,6 @@ func (s *spotifyGetter) GetPlaylistID(ctx context.Context, resourceName string) 
 }
 
 func (s *spotifyGetter) GetPlaylistItems(ctx context.Context, resourceName, id string) (collection *data.Collection, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf("panic occurred: %v", r)
-		}
-	}()
 
 	collection = &data.Collection{
 		Name: resourceName,
@@ -51,17 +45,21 @@ func (s *spotifyGetter) GetPlaylistItems(ctx context.Context, resourceName, id s
 	for ; itemsPage != nil; itemsPage, err = itemsPage.NextItems(ctx, s.client) {
 
 		if err != nil {
-			break
+			return nil, err
 		}
 
 		for _, item := range itemsPage.Items {
 			track := item.Track.Track.SimpleTrack
 
-			collection.Musics = append(collection.Musics, &data.Music{
-				Title:  track.Name,
-				Artist: track.Artists[0].Name,
-				Album:  track.Album.Name,
-			})
+			music := &data.Music{
+				Title: track.Name,
+				Album: track.Album.Name,
+			}
+			if len(track.Artists) > 0 {
+				music.Artist = track.Artists[0].Name
+			}
+
+			collection.Musics = append(collection.Musics, music)
 		}
 	}
 
