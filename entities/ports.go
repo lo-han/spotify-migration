@@ -15,6 +15,7 @@ type IImporterUsecase interface {
 
 type IMigrationStateRepository interface {
 	GetPendingItems() map[string]string
+	GetMigratedItems() map[string]string
 	UpdateItemToMigrated(itemID string)
 	AddItem(item *data.Music, address string)
 	Read() (bool, error)

@@ -8,16 +8,16 @@ import (
 )
 
 func NewPlaylistExtractor(origin ISourceGetter) domain.IExtractorUsecase {
-	return &spotifyPlaylistExtractor{
+	return &extractor{
 		origin: origin,
 	}
 }
 
-type spotifyPlaylistExtractor struct {
+type extractor struct {
 	origin ISourceGetter
 }
 
-func (s *spotifyPlaylistExtractor) Extract(ctx context.Context, resourceName string) (*data.Collection, error) {
+func (s *extractor) Extract(ctx context.Context, resourceName string) (*data.Collection, error) {
 	playlistID, err := s.origin.GetPlaylistID(ctx, resourceName)
 	if err != nil {
 		return nil, err

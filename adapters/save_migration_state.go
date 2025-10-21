@@ -46,6 +46,17 @@ func (m *MigrationState) GetPendingItems() map[string]string {
 	return pendingItems
 }
 
+func (m *MigrationState) GetMigratedItems() map[string]string {
+	migratedItems := make(map[string]string)
+
+	for id, state := range m.items {
+		if migrated(state.State) {
+			migratedItems[id] = state.Address
+		}
+	}
+	return migratedItems
+}
+
 func (m *MigrationState) UpdateItemToMigrated(itemID string) {
 	if m.items != nil {
 		currentState, exists := m.items[itemID]

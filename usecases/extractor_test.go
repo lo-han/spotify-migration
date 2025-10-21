@@ -15,11 +15,11 @@ func TestNewPlaylistExtractor(t *testing.T) {
 	mockSourceGetter := mocks.NewISourceGetter(t)
 
 	// Act
-	extractor := NewPlaylistExtractor(mockSourceGetter)
+	extractorUsecase := NewPlaylistExtractor(mockSourceGetter)
 
 	// Assert
-	assert.NotNil(t, extractor)
-	assert.IsType(t, &spotifyPlaylistExtractor{}, extractor)
+	assert.NotNil(t, extractorUsecase)
+	assert.IsType(t, &extractor{}, extractorUsecase)
 }
 
 func TestSpotifyPlaylistExtractor_Extract_Success(t *testing.T) {

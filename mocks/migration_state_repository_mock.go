@@ -83,6 +83,52 @@ func (_c *IMigrationStateRepository_AddItem_Call) RunAndReturn(run func(item *da
 	return _c
 }
 
+// GetMigratedItems provides a mock function for the type IMigrationStateRepository
+func (_mock *IMigrationStateRepository) GetMigratedItems() map[string]string {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMigratedItems")
+	}
+
+	var r0 map[string]string
+	if returnFunc, ok := ret.Get(0).(func() map[string]string); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[string]string)
+		}
+	}
+	return r0
+}
+
+// IMigrationStateRepository_GetMigratedItems_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetMigratedItems'
+type IMigrationStateRepository_GetMigratedItems_Call struct {
+	*mock.Call
+}
+
+// GetMigratedItems is a helper method to define mock.On call
+func (_e *IMigrationStateRepository_Expecter) GetMigratedItems() *IMigrationStateRepository_GetMigratedItems_Call {
+	return &IMigrationStateRepository_GetMigratedItems_Call{Call: _e.mock.On("GetMigratedItems")}
+}
+
+func (_c *IMigrationStateRepository_GetMigratedItems_Call) Run(run func()) *IMigrationStateRepository_GetMigratedItems_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *IMigrationStateRepository_GetMigratedItems_Call) Return(stringToString map[string]string) *IMigrationStateRepository_GetMigratedItems_Call {
+	_c.Call.Return(stringToString)
+	return _c
+}
+
+func (_c *IMigrationStateRepository_GetMigratedItems_Call) RunAndReturn(run func() map[string]string) *IMigrationStateRepository_GetMigratedItems_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetPendingItems provides a mock function for the type IMigrationStateRepository
 func (_mock *IMigrationStateRepository) GetPendingItems() map[string]string {
 	ret := _mock.Called()

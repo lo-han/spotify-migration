@@ -13,9 +13,9 @@ import (
 
 func newImporterTestNewImporter(
 	searcher ITargetSearch, collection ITargetCollection, targetWriter ITargetWriter, migrationState entities.IMigrationStateRepository,
-) *youtubeImporter {
+) *importer {
 
-	return &youtubeImporter{
+	return &importer{
 		searcher:       searcher,
 		collection:     collection,
 		apiLimit:       API_LIMIT,
@@ -30,12 +30,12 @@ func TestNewImporter(t *testing.T) {
 	mockTargetWriter := mocks.NewITargetWriter(t)
 	mockMigrationState := mocks.NewIMigrationStateRepository(t)
 
-	importer := NewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
+	importerUsecase := NewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	assert.NotNil(t, importer)
-	assert.IsType(t, &youtubeImporter{}, importer)
+	assert.NotNil(t, importerUsecase)
+	assert.IsType(t, &importer{}, importerUsecase)
 
-	youtubeImporter := importer.(*youtubeImporter)
+	youtubeImporter := importerUsecase.(*importer)
 	assert.Equal(t, API_LIMIT, youtubeImporter.apiLimit)
 	assert.Equal(t, 0, youtubeImporter.searchedItems)
 	assert.NotNil(t, youtubeImporter.searcher)
@@ -56,6 +56,7 @@ func TestYoutubeImporter_Import_Success_ExistingCollection(t *testing.T) {
 
 	existingCollectionID := "existing_collection_123"
 	pendingItems := map[string]string{}
+	migratedItems := map[string]string{}
 
 	mockSearcher := mocks.NewITargetSearch(t)
 	mockCollection := mocks.NewITargetCollection(t)
@@ -65,6 +66,7 @@ func TestYoutubeImporter_Import_Success_ExistingCollection(t *testing.T) {
 	mockCollection.On("CheckIfCollectionExists", ctx, collection.Name).Return(existingCollectionID, nil)
 	mockMigrationState.On("Read").Return(true, nil)
 	mockMigrationState.On("GetPendingItems").Return(pendingItems)
+	mockMigrationState.On("GetMigratedItems").Return(migratedItems)
 
 	mockSearcher.On("SearchItem", ctx, collection.Musics[0]).Return("youtube_id_1", nil)
 	mockSearcher.On("SearchItem", ctx, collection.Musics[1]).Return("youtube_id_2", nil)
@@ -172,10 +174,13 @@ func TestYoutubeImporter_getCollectionID_CreateCollectionError(t *testing.T) {
 	assert.Empty(t, collectionID)
 }
 
-func TestYoutubeImporter_retrievePendingItems_StateExists(t *testing.T) {
-	expectedItems := map[string]string{
+func TestYoutubeImporter_retrieveItems_StateExists(t *testing.T) {
+	expectedPendingItems := map[string]string{
 		"song1": "youtube_id_1",
 		"song2": "youtube_id_2",
+	}
+	expectedMigratedItems := map[string]string{
+		"song3": "youtube_id_3",
 	}
 
 	mockSearcher := mocks.NewITargetSearch(t)
@@ -184,17 +189,19 @@ func TestYoutubeImporter_retrievePendingItems_StateExists(t *testing.T) {
 	mockMigrationState := mocks.NewIMigrationStateRepository(t)
 
 	mockMigrationState.On("Read").Return(true, nil)
-	mockMigrationState.On("GetPendingItems").Return(expectedItems)
+	mockMigrationState.On("GetPendingItems").Return(expectedPendingItems)
+	mockMigrationState.On("GetMigratedItems").Return(expectedMigratedItems)
 
 	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	items, err := importer.retrievePendingItems()
+	pendingItems, migratedItems, err := importer.retrieveItems()
 
 	assert.NoError(t, err)
-	assert.Equal(t, expectedItems, items)
+	assert.Equal(t, expectedPendingItems, pendingItems)
+	assert.Equal(t, expectedMigratedItems, migratedItems)
 }
 
-func TestYoutubeImporter_retrievePendingItems_StateDoesNotExist(t *testing.T) {
+func TestYoutubeImporter_retrieveItems_StateDoesNotExist(t *testing.T) {
 	mockSearcher := mocks.NewITargetSearch(t)
 	mockCollection := mocks.NewITargetCollection(t)
 	mockTargetWriter := mocks.NewITargetWriter(t)
@@ -204,14 +211,16 @@ func TestYoutubeImporter_retrievePendingItems_StateDoesNotExist(t *testing.T) {
 
 	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	items, err := importer.retrievePendingItems()
+	pendingItems, migratedItems, err := importer.retrieveItems()
 
 	assert.NoError(t, err)
-	assert.NotNil(t, items)
-	assert.Len(t, items, 0)
+	assert.NotNil(t, pendingItems)
+	assert.NotNil(t, migratedItems)
+	assert.Len(t, pendingItems, 0)
+	assert.Len(t, migratedItems, 0)
 }
 
-func TestYoutubeImporter_retrievePendingItems_ReadError(t *testing.T) {
+func TestYoutubeImporter_retrieveItems_ReadError(t *testing.T) {
 	expectedError := assert.AnError
 
 	mockSearcher := mocks.NewITargetSearch(t)
@@ -223,11 +232,12 @@ func TestYoutubeImporter_retrievePendingItems_ReadError(t *testing.T) {
 
 	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	items, err := importer.retrievePendingItems()
+	pendingItems, migratedItems, err := importer.retrieveItems()
 
 	assert.Error(t, err)
 	assert.Equal(t, expectedError, err)
-	assert.Nil(t, items)
+	assert.Nil(t, pendingItems)
+	assert.Nil(t, migratedItems)
 }
 
 func TestYoutubeImporter_getNewItems_Success(t *testing.T) {
@@ -239,7 +249,8 @@ func TestYoutubeImporter_getNewItems_Success(t *testing.T) {
 			{Title: "Song 2", Artist: "Artist 2", Album: "Album 2"},
 		},
 	}
-	itemIDs := map[string]string{}
+	pendingItems := map[string]string{}
+	migratedItems := map[string]string{}
 
 	mockSearcher := mocks.NewITargetSearch(t)
 	mockCollection := mocks.NewITargetCollection(t)
@@ -254,12 +265,12 @@ func TestYoutubeImporter_getNewItems_Success(t *testing.T) {
 
 	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	err := importer.getNewItems(ctx, collection, itemIDs)
+	err := importer.getNewItems(ctx, collection, pendingItems, migratedItems)
 
 	assert.NoError(t, err)
-	assert.Equal(t, 2, len(itemIDs))
-	assert.Contains(t, itemIDs, entities.ID(collection.Musics[0]))
-	assert.Contains(t, itemIDs, entities.ID(collection.Musics[1]))
+	assert.Equal(t, 2, len(pendingItems))
+	assert.Contains(t, pendingItems, entities.ID(collection.Musics[0]))
+	assert.Contains(t, pendingItems, entities.ID(collection.Musics[1]))
 	assert.Equal(t, 2, importer.searchedItems)
 }
 
@@ -274,7 +285,10 @@ func TestYoutubeImporter_getNewItems_WithExistingItems(t *testing.T) {
 	}
 
 	existingItemID := entities.ID(collection.Musics[0])
-	itemIDs := map[string]string{
+	pendingItems := map[string]string{
+		existingItemID: "existing_youtube_id",
+	}
+	migratedItems := map[string]string{
 		existingItemID: "existing_youtube_id",
 	}
 
@@ -289,12 +303,12 @@ func TestYoutubeImporter_getNewItems_WithExistingItems(t *testing.T) {
 
 	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	err := importer.getNewItems(ctx, collection, itemIDs)
+	err := importer.getNewItems(ctx, collection, pendingItems, migratedItems)
 
 	assert.NoError(t, err)
-	assert.Equal(t, 2, len(itemIDs))
-	assert.Contains(t, itemIDs, existingItemID)
-	assert.Contains(t, itemIDs, entities.ID(collection.Musics[1]))
+	assert.Equal(t, 2, len(pendingItems))
+	assert.Contains(t, pendingItems, existingItemID)
+	assert.Contains(t, pendingItems, entities.ID(collection.Musics[1]))
 }
 
 func TestYoutubeImporter_getNewItems_APILimitReached(t *testing.T) {
@@ -306,7 +320,8 @@ func TestYoutubeImporter_getNewItems_APILimitReached(t *testing.T) {
 			{Title: "Song 2", Artist: "Artist 2", Album: "Album 2"},
 		},
 	}
-	itemIDs := map[string]string{}
+	pendingItems := map[string]string{}
+	migratedItems := map[string]string{}
 
 	mockSearcher := mocks.NewITargetSearch(t)
 	mockCollection := mocks.NewITargetCollection(t)
@@ -320,7 +335,7 @@ func TestYoutubeImporter_getNewItems_APILimitReached(t *testing.T) {
 	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 	importer.apiLimit = 1
 
-	err := importer.getNewItems(ctx, collection, itemIDs)
+	err := importer.getNewItems(ctx, collection, pendingItems, migratedItems)
 
 	assert.NoError(t, err)
 	assert.Equal(t, 1, importer.searchedItems)
@@ -334,7 +349,8 @@ func TestYoutubeImporter_getNewItems_SearchError(t *testing.T) {
 			{Title: "Song 1", Artist: "Artist 1", Album: "Album 1"},
 		},
 	}
-	itemIDs := map[string]string{}
+	pendingItems := map[string]string{}
+	migratedItems := map[string]string{}
 	expectedError := assert.AnError
 
 	mockSearcher := mocks.NewITargetSearch(t)
@@ -347,11 +363,11 @@ func TestYoutubeImporter_getNewItems_SearchError(t *testing.T) {
 
 	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	err := importer.getNewItems(ctx, collection, itemIDs)
+	err := importer.getNewItems(ctx, collection, pendingItems, migratedItems)
 
 	assert.Error(t, err)
 	assert.Equal(t, expectedError, err)
-	assert.Equal(t, 0, len(itemIDs))
+	assert.Equal(t, 0, len(pendingItems))
 }
 
 func TestYoutubeImporter_insertAll_Success(t *testing.T) {
@@ -487,6 +503,7 @@ func BenchmarkYoutubeImporter_Import(b *testing.B) {
 		mockCollection.On("CheckIfCollectionExists", mock.Anything, mock.Anything).Return("collection_123", nil)
 		mockMigrationState.On("Read", mock.Anything).Return(true, nil)
 		mockMigrationState.On("GetPendingItems", mock.Anything).Return(pendingItems)
+		mockMigrationState.On("GetMigratedItems", mock.Anything).Return(map[string]string{})
 		mockSearcher.On("SearchItem", mock.Anything, mock.Anything).Return("youtube_id", nil)
 		mockMigrationState.On("AddItem", mock.Anything, mock.Anything).Return()
 		mockTargetWriter.On("AddItemToPlaylist", mock.Anything, mock.Anything, mock.Anything).Return(nil)
