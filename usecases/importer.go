@@ -15,7 +15,7 @@ func NewImporter(
 	searcher ITargetSearch, collection ITargetCollection, targetWriter ITargetWriter, migrationState entities.IMigrationStateRepository,
 ) entities.IImporterUsecase {
 
-	return &youtubeImporter{
+	return &importer{
 		searcher:       searcher,
 		collection:     collection,
 		apiLimit:       API_LIMIT,
@@ -24,7 +24,7 @@ func NewImporter(
 	}
 }
 
-type youtubeImporter struct {
+type importer struct {
 	searcher       ITargetSearch
 	collection     ITargetCollection
 	targetWriter   ITargetWriter
@@ -33,7 +33,7 @@ type youtubeImporter struct {
 	migrationState entities.IMigrationStateRepository
 }
 
-func (s *youtubeImporter) Import(ctx context.Context, collection *data.Collection) (bool, error) {
+func (s *importer) Import(ctx context.Context, collection *data.Collection) (bool, error) {
 	if collection == nil {
 		return false, nil
 	}
@@ -43,20 +43,20 @@ func (s *youtubeImporter) Import(ctx context.Context, collection *data.Collectio
 		return false, err
 	}
 
-	itemIDs, err := s.retrievePendingItems()
+	pendingItemIDs, migratedItemIDs, err := s.retrieveItems()
 	if err != nil {
 		return false, err
 	}
 
-	err = s.getNewItems(ctx, collection, itemIDs)
+	err = s.getNewItems(ctx, collection, pendingItemIDs, migratedItemIDs)
 	if err != nil {
 		return false, err
 	}
 
-	log.Println("Found", len(itemIDs), "items to import in collection", collection.Name)
+	log.Println("Found", len(pendingItemIDs), "items to import in collection", collection.Name)
 	log.Println("Importing items...")
 
-	err = s.insertAll(ctx, collectionID, itemIDs)
+	err = s.insertAll(ctx, collectionID, pendingItemIDs)
 	if err != nil {
 		return false, err
 	}
@@ -64,7 +64,7 @@ func (s *youtubeImporter) Import(ctx context.Context, collection *data.Collectio
 	return true, nil
 }
 
-func (s *youtubeImporter) getCollectionID(ctx context.Context, collection *data.Collection) (string, error) {
+func (s *importer) getCollectionID(ctx context.Context, collection *data.Collection) (string, error) {
 	collectionID, err := s.collection.CheckIfCollectionExists(ctx, collection.Name)
 	if err != nil {
 		return "", err
@@ -81,21 +81,23 @@ func (s *youtubeImporter) getCollectionID(ctx context.Context, collection *data.
 	return collectionID, nil
 }
 
-func (s *youtubeImporter) retrievePendingItems() (map[string]string, error) {
-	itemIDs := make(map[string]string)
+func (s *importer) retrieveItems() (pendingItems map[string]string, migratedItems map[string]string, err error) {
+	pendingItemIDs := make(map[string]string)
+	migratedItemIDs := make(map[string]string)
 
 	exists, err := s.migrationState.Read()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if exists {
-		itemIDs = s.migrationState.GetPendingItems()
+		pendingItemIDs = s.migrationState.GetPendingItems()
+		migratedItemIDs = s.migrationState.GetMigratedItems()
 	}
 
-	return itemIDs, nil
+	return pendingItemIDs, migratedItemIDs, nil
 }
 
-func (s *youtubeImporter) getNewItems(ctx context.Context, collection *data.Collection, itemIDs map[string]string) error {
+func (s *importer) getNewItems(ctx context.Context, collection *data.Collection, pendingItems, migratedItems map[string]string) error {
 	defer s.migrationState.Save()
 
 	for _, music := range collection.Musics {
@@ -105,7 +107,7 @@ func (s *youtubeImporter) getNewItems(ctx context.Context, collection *data.Coll
 
 		id := entities.ID(music)
 
-		if _, exists := itemIDs[id]; exists {
+		if _, exists := migratedItems[id]; exists {
 			continue
 		}
 
@@ -114,7 +116,7 @@ func (s *youtubeImporter) getNewItems(ctx context.Context, collection *data.Coll
 			return err
 		}
 
-		itemIDs[id] = itemAddress
+		pendingItems[id] = itemAddress
 		s.migrationState.AddItem(music, itemAddress)
 
 		s.searchedItems++
@@ -122,7 +124,7 @@ func (s *youtubeImporter) getNewItems(ctx context.Context, collection *data.Coll
 	return nil
 }
 
-func (s *youtubeImporter) insertAll(ctx context.Context, collectionID string, itemIDs map[string]string) error {
+func (s *importer) insertAll(ctx context.Context, collectionID string, itemIDs map[string]string) error {
 	if collectionID == "" || len(itemIDs) == 0 {
 		return nil
 	}
