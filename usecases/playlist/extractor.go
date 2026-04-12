@@ -1,23 +1,23 @@
-package usecases
+package playlist
 
 import (
 	"context"
 	"log"
 	domain "spotify_migration/entities"
-	"spotify_migration/entities/data"
+	"spotify_migration/usecases"
 )
 
-func NewPlaylistExtractor(origin ISourceGetter) domain.IExtractorUsecase {
-	return &extractor{
+func NewExtractor(origin usecases.ISourceGetter) domain.IExtractorUsecase {
+	return &playlistExtractor{
 		origin: origin,
 	}
 }
 
-type extractor struct {
-	origin ISourceGetter
+type playlistExtractor struct {
+	origin usecases.ISourceGetter
 }
 
-func (s *extractor) Extract(ctx context.Context, resourceName string) (*data.Collection, error) {
+func (s *playlistExtractor) Extract(ctx context.Context, resourceName string) (any, error) {
 	playlistID, err := s.origin.GetPlaylistID(ctx, resourceName)
 	if err != nil {
 		return nil, err

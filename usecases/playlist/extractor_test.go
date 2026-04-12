@@ -1,4 +1,4 @@
-package usecases
+package playlist
 
 import (
 	"context"
@@ -15,11 +15,11 @@ func TestNewPlaylistExtractor(t *testing.T) {
 	mockSourceGetter := mocks.NewISourceGetter(t)
 
 	// Act
-	extractorUsecase := NewPlaylistExtractor(mockSourceGetter)
+	extractorUsecase := NewExtractor(mockSourceGetter)
 
 	// Assert
 	assert.NotNil(t, extractorUsecase)
-	assert.IsType(t, &extractor{}, extractorUsecase)
+	assert.IsType(t, &playlistExtractor{}, extractorUsecase)
 }
 
 func TestSpotifyPlaylistExtractor_Extract_Success(t *testing.T) {
@@ -47,9 +47,14 @@ func TestSpotifyPlaylistExtractor_Extract_Success(t *testing.T) {
 	mockSourceGetter.On("GetPlaylistID", ctx, resourceName).Return(playlistID, nil)
 	mockSourceGetter.On("GetPlaylistItems", ctx, resourceName, playlistID).Return(expectedCollection, nil)
 
-	extractor := NewPlaylistExtractor(mockSourceGetter)
+	playlistExtractor := NewExtractor(mockSourceGetter)
 
-	result, err := extractor.Extract(ctx, resourceName)
+	musics, err := playlistExtractor.Extract(ctx, resourceName)
+
+	result, ok := musics.(*data.Collection)
+	if !ok {
+		panic("invalid collection data")
+	}
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
@@ -82,9 +87,14 @@ func TestSpotifyPlaylistExtractor_Extract_EmptyPlaylist(t *testing.T) {
 	mockSourceGetter.On("GetPlaylistID", ctx, resourceName).Return(playlistID, nil)
 	mockSourceGetter.On("GetPlaylistItems", ctx, resourceName, playlistID).Return(expectedCollection, nil)
 
-	extractor := NewPlaylistExtractor(mockSourceGetter)
+	playlistExtractor := NewExtractor(mockSourceGetter)
 
-	result, err := extractor.Extract(ctx, resourceName)
+	musics, err := playlistExtractor.Extract(ctx, resourceName)
+
+	result, ok := musics.(*data.Collection)
+	if !ok {
+		panic("invalid collection data")
+	}
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
@@ -103,9 +113,9 @@ func TestSpotifyPlaylistExtractor_Extract_GetPlaylistIDError(t *testing.T) {
 	mockSourceGetter := mocks.NewISourceGetter(t)
 	mockSourceGetter.On("GetPlaylistID", ctx, resourceName).Return("", expectedError)
 
-	extractor := NewPlaylistExtractor(mockSourceGetter)
+	playlistExtractor := NewExtractor(mockSourceGetter)
 
-	result, err := extractor.Extract(ctx, resourceName)
+	result, err := playlistExtractor.Extract(ctx, resourceName)
 
 	assert.Error(t, err)
 	assert.Nil(t, result)
@@ -124,9 +134,9 @@ func TestSpotifyPlaylistExtractor_Extract_GetPlaylistItemsError(t *testing.T) {
 	mockSourceGetter.On("GetPlaylistID", ctx, resourceName).Return(playlistID, nil)
 	mockSourceGetter.On("GetPlaylistItems", ctx, resourceName, playlistID).Return(nil, expectedError)
 
-	extractor := NewPlaylistExtractor(mockSourceGetter)
+	playlistExtractor := NewExtractor(mockSourceGetter)
 
-	result, err := extractor.Extract(ctx, resourceName)
+	result, err := playlistExtractor.Extract(ctx, resourceName)
 
 	assert.Error(t, err)
 	assert.Nil(t, result)

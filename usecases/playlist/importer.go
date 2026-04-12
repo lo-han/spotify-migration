@@ -1,10 +1,12 @@
-package usecases
+package playlist
 
 import (
 	"context"
+	"errors"
 	"log"
 	"spotify_migration/entities"
 	"spotify_migration/entities/data"
+	"spotify_migration/usecases"
 )
 
 const (
@@ -12,10 +14,13 @@ const (
 )
 
 func NewImporter(
-	searcher ITargetSearch, collection ITargetCollection, targetWriter ITargetWriter, migrationState entities.IMigrationStateRepository,
+	searcher usecases.ITargetSearch,
+	collection usecases.ITargetCollection,
+	targetWriter usecases.ITargetWriter,
+	migrationState entities.IMigrationStateRepository,
 ) entities.IImporterUsecase {
 
-	return &importer{
+	return &playlistImporter{
 		searcher:       searcher,
 		collection:     collection,
 		apiLimit:       API_LIMIT,
@@ -24,21 +29,26 @@ func NewImporter(
 	}
 }
 
-type importer struct {
-	searcher       ITargetSearch
-	collection     ITargetCollection
-	targetWriter   ITargetWriter
+type playlistImporter struct {
+	searcher       usecases.ITargetSearch
+	collection     usecases.ITargetCollection
+	targetWriter   usecases.ITargetWriter
 	apiLimit       int
 	searchedItems  int
 	migrationState entities.IMigrationStateRepository
 }
 
-func (s *importer) Import(ctx context.Context, collection *data.Collection) (bool, error) {
+func (s *playlistImporter) Import(ctx context.Context, collection any) (bool, error) {
 	if collection == nil {
 		return false, nil
 	}
 
-	collectionID, err := s.getCollectionID(ctx, collection)
+	musics, ok := collection.(*data.Collection)
+	if !ok {
+		return false, errors.New("invalid collection data")
+	}
+
+	collectionID, err := s.getCollectionID(ctx, musics)
 	if err != nil {
 		return false, err
 	}
@@ -48,12 +58,12 @@ func (s *importer) Import(ctx context.Context, collection *data.Collection) (boo
 		return false, err
 	}
 
-	err = s.getNewItems(ctx, collection, pendingItemIDs, migratedItemIDs)
+	err = s.getNewItems(ctx, musics, pendingItemIDs, migratedItemIDs)
 	if err != nil {
 		return false, err
 	}
 
-	log.Println("Found", len(pendingItemIDs), "items to import in collection", collection.Name)
+	log.Println("Found", len(pendingItemIDs), "items to import in collection", musics.Name)
 	log.Println("Importing items...")
 
 	err = s.insertAll(ctx, collectionID, pendingItemIDs)
@@ -64,7 +74,7 @@ func (s *importer) Import(ctx context.Context, collection *data.Collection) (boo
 	return true, nil
 }
 
-func (s *importer) getCollectionID(ctx context.Context, collection *data.Collection) (string, error) {
+func (s *playlistImporter) getCollectionID(ctx context.Context, collection *data.Collection) (string, error) {
 	collectionID, err := s.collection.CheckIfCollectionExists(ctx, collection.Name)
 	if err != nil {
 		return "", err
@@ -81,7 +91,7 @@ func (s *importer) getCollectionID(ctx context.Context, collection *data.Collect
 	return collectionID, nil
 }
 
-func (s *importer) retrieveItems() (pendingItems map[string]string, migratedItems map[string]string, err error) {
+func (s *playlistImporter) retrieveItems() (pendingItems map[string]string, migratedItems map[string]string, err error) {
 	pendingItemIDs := make(map[string]string)
 	migratedItemIDs := make(map[string]string)
 
@@ -97,7 +107,7 @@ func (s *importer) retrieveItems() (pendingItems map[string]string, migratedItem
 	return pendingItemIDs, migratedItemIDs, nil
 }
 
-func (s *importer) getNewItems(ctx context.Context, collection *data.Collection, pendingItems, migratedItems map[string]string) error {
+func (s *playlistImporter) getNewItems(ctx context.Context, collection *data.Collection, pendingItems, migratedItems map[string]string) error {
 	defer s.migrationState.Save()
 
 	for _, music := range collection.Musics {
@@ -124,7 +134,7 @@ func (s *importer) getNewItems(ctx context.Context, collection *data.Collection,
 	return nil
 }
 
-func (s *importer) insertAll(ctx context.Context, collectionID string, itemIDs map[string]string) error {
+func (s *playlistImporter) insertAll(ctx context.Context, collectionID string, itemIDs map[string]string) error {
 	if collectionID == "" || len(itemIDs) == 0 {
 		return nil
 	}

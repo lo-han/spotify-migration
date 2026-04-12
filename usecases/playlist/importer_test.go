@@ -1,10 +1,11 @@
-package usecases
+package playlist
 
 import (
 	"context"
 	"spotify_migration/entities"
 	"spotify_migration/entities/data"
 	"spotify_migration/mocks"
+	"spotify_migration/usecases"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,10 +13,10 @@ import (
 )
 
 func newImporterTestNewImporter(
-	searcher ITargetSearch, collection ITargetCollection, targetWriter ITargetWriter, migrationState entities.IMigrationStateRepository,
-) *importer {
+	searcher usecases.ITargetSearch, collection usecases.ITargetCollection, targetWriter usecases.ITargetWriter, migrationState entities.IMigrationStateRepository,
+) *playlistImporter {
 
-	return &importer{
+	return &playlistImporter{
 		searcher:       searcher,
 		collection:     collection,
 		apiLimit:       API_LIMIT,
@@ -33,9 +34,9 @@ func TestNewImporter(t *testing.T) {
 	importerUsecase := NewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
 	assert.NotNil(t, importerUsecase)
-	assert.IsType(t, &importer{}, importerUsecase)
+	assert.IsType(t, &playlistImporter{}, importerUsecase)
 
-	youtubeImporter := importerUsecase.(*importer)
+	youtubeImporter := importerUsecase.(*playlistImporter)
 	assert.Equal(t, API_LIMIT, youtubeImporter.apiLimit)
 	assert.Equal(t, 0, youtubeImporter.searchedItems)
 	assert.NotNil(t, youtubeImporter.searcher)
@@ -82,9 +83,9 @@ func TestYoutubeImporter_Import_Success_ExistingCollection(t *testing.T) {
 	mockMigrationState.On("UpdateItemToMigrated", song2ID).Return()
 	mockMigrationState.On("Save").Return(nil)
 
-	importer := NewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
+	playlistImporter := NewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	result, err := importer.Import(ctx, collection)
+	result, err := playlistImporter.Import(ctx, collection)
 
 	assert.NoError(t, err)
 	assert.True(t, result)
@@ -102,9 +103,9 @@ func TestYoutubeImporter_getCollectionID_ExistingCollection(t *testing.T) {
 
 	mockCollection.On("CheckIfCollectionExists", ctx, collection.Name).Return(existingID, nil)
 
-	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
+	playlistImporter := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	collectionID, err := importer.getCollectionID(ctx, collection)
+	collectionID, err := playlistImporter.getCollectionID(ctx, collection)
 
 	assert.NoError(t, err)
 	assert.Equal(t, existingID, collectionID)
@@ -123,9 +124,9 @@ func TestYoutubeImporter_getCollectionID_NewCollection(t *testing.T) {
 	mockCollection.On("CheckIfCollectionExists", ctx, collection.Name).Return("", nil)
 	mockCollection.On("CreateCollection", ctx, collection.Name).Return(newID, nil)
 
-	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
+	playlistImporter := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	collectionID, err := importer.getCollectionID(ctx, collection)
+	collectionID, err := playlistImporter.getCollectionID(ctx, collection)
 
 	assert.NoError(t, err)
 	assert.Equal(t, newID, collectionID)
@@ -143,9 +144,9 @@ func TestYoutubeImporter_getCollectionID_CheckExistError(t *testing.T) {
 
 	mockCollection.On("CheckIfCollectionExists", ctx, collection.Name).Return("", expectedError)
 
-	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
+	playlistImporter := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	collectionID, err := importer.getCollectionID(ctx, collection)
+	collectionID, err := playlistImporter.getCollectionID(ctx, collection)
 
 	assert.Error(t, err)
 	assert.Equal(t, expectedError, err)
@@ -165,9 +166,9 @@ func TestYoutubeImporter_getCollectionID_CreateCollectionError(t *testing.T) {
 	mockCollection.On("CheckIfCollectionExists", ctx, collection.Name).Return("", nil)
 	mockCollection.On("CreateCollection", ctx, collection.Name).Return("", expectedError)
 
-	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
+	playlistImporter := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	collectionID, err := importer.getCollectionID(ctx, collection)
+	collectionID, err := playlistImporter.getCollectionID(ctx, collection)
 
 	assert.Error(t, err)
 	assert.Equal(t, expectedError, err)
@@ -192,9 +193,9 @@ func TestYoutubeImporter_retrieveItems_StateExists(t *testing.T) {
 	mockMigrationState.On("GetPendingItems").Return(expectedPendingItems)
 	mockMigrationState.On("GetMigratedItems").Return(expectedMigratedItems)
 
-	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
+	playlistImporter := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	pendingItems, migratedItems, err := importer.retrieveItems()
+	pendingItems, migratedItems, err := playlistImporter.retrieveItems()
 
 	assert.NoError(t, err)
 	assert.Equal(t, expectedPendingItems, pendingItems)
@@ -209,9 +210,9 @@ func TestYoutubeImporter_retrieveItems_StateDoesNotExist(t *testing.T) {
 
 	mockMigrationState.On("Read").Return(false, nil)
 
-	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
+	playlistImporter := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	pendingItems, migratedItems, err := importer.retrieveItems()
+	pendingItems, migratedItems, err := playlistImporter.retrieveItems()
 
 	assert.NoError(t, err)
 	assert.NotNil(t, pendingItems)
@@ -230,9 +231,9 @@ func TestYoutubeImporter_retrieveItems_ReadError(t *testing.T) {
 
 	mockMigrationState.On("Read").Return(false, expectedError)
 
-	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
+	playlistImporter := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	pendingItems, migratedItems, err := importer.retrieveItems()
+	pendingItems, migratedItems, err := playlistImporter.retrieveItems()
 
 	assert.Error(t, err)
 	assert.Equal(t, expectedError, err)
@@ -263,15 +264,15 @@ func TestYoutubeImporter_getNewItems_Success(t *testing.T) {
 	mockMigrationState.On("AddItem", collection.Musics[1], "youtube_id_2").Return()
 	mockMigrationState.On("Save").Return(nil)
 
-	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
+	playlistImporter := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	err := importer.getNewItems(ctx, collection, pendingItems, migratedItems)
+	err := playlistImporter.getNewItems(ctx, collection, pendingItems, migratedItems)
 
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(pendingItems))
 	assert.Contains(t, pendingItems, entities.ID(collection.Musics[0]))
 	assert.Contains(t, pendingItems, entities.ID(collection.Musics[1]))
-	assert.Equal(t, 2, importer.searchedItems)
+	assert.Equal(t, 2, playlistImporter.searchedItems)
 }
 
 func TestYoutubeImporter_getNewItems_WithExistingItems(t *testing.T) {
@@ -301,9 +302,9 @@ func TestYoutubeImporter_getNewItems_WithExistingItems(t *testing.T) {
 	mockMigrationState.On("AddItem", collection.Musics[1], "youtube_id_2").Return()
 	mockMigrationState.On("Save").Return(nil)
 
-	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
+	playlistImporter := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	err := importer.getNewItems(ctx, collection, pendingItems, migratedItems)
+	err := playlistImporter.getNewItems(ctx, collection, pendingItems, migratedItems)
 
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(pendingItems))
@@ -332,13 +333,13 @@ func TestYoutubeImporter_getNewItems_APILimitReached(t *testing.T) {
 	mockMigrationState.On("AddItem", collection.Musics[0], "youtube_id_1").Return()
 	mockMigrationState.On("Save").Return(nil)
 
-	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
-	importer.apiLimit = 1
+	playlistImporter := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
+	playlistImporter.apiLimit = 1
 
-	err := importer.getNewItems(ctx, collection, pendingItems, migratedItems)
+	err := playlistImporter.getNewItems(ctx, collection, pendingItems, migratedItems)
 
 	assert.NoError(t, err)
-	assert.Equal(t, 1, importer.searchedItems)
+	assert.Equal(t, 1, playlistImporter.searchedItems)
 }
 
 func TestYoutubeImporter_getNewItems_SearchError(t *testing.T) {
@@ -361,9 +362,9 @@ func TestYoutubeImporter_getNewItems_SearchError(t *testing.T) {
 	mockSearcher.On("SearchItem", ctx, collection.Musics[0]).Return("", expectedError)
 	mockMigrationState.On("Save").Return(nil)
 
-	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
+	playlistImporter := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	err := importer.getNewItems(ctx, collection, pendingItems, migratedItems)
+	err := playlistImporter.getNewItems(ctx, collection, pendingItems, migratedItems)
 
 	assert.Error(t, err)
 	assert.Equal(t, expectedError, err)
@@ -389,9 +390,9 @@ func TestYoutubeImporter_insertAll_Success(t *testing.T) {
 	mockMigrationState.On("UpdateItemToMigrated", "item2").Return()
 	mockMigrationState.On("Save").Return(nil)
 
-	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
+	playlistImporter := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	err := importer.insertAll(ctx, collectionID, itemIDs)
+	err := playlistImporter.insertAll(ctx, collectionID, itemIDs)
 
 	assert.NoError(t, err)
 }
@@ -407,9 +408,9 @@ func TestYoutubeImporter_insertAll_EmptyCollectionID(t *testing.T) {
 	mockTargetWriter := mocks.NewITargetWriter(t)
 	mockMigrationState := mocks.NewIMigrationStateRepository(t)
 
-	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
+	playlistImporter := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	err := importer.insertAll(ctx, "", itemIDs)
+	err := playlistImporter.insertAll(ctx, "", itemIDs)
 
 	assert.NoError(t, err)
 }
@@ -424,9 +425,9 @@ func TestYoutubeImporter_insertAll_EmptyItems(t *testing.T) {
 	mockTargetWriter := mocks.NewITargetWriter(t)
 	mockMigrationState := mocks.NewIMigrationStateRepository(t)
 
-	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
+	playlistImporter := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	err := importer.insertAll(ctx, collectionID, itemIDs)
+	err := playlistImporter.insertAll(ctx, collectionID, itemIDs)
 
 	assert.NoError(t, err)
 }
@@ -447,9 +448,9 @@ func TestYoutubeImporter_insertAll_AddItemError(t *testing.T) {
 	mockTargetWriter.On("AddItemToPlaylist", ctx, collectionID, "youtube_id_1").Return(expectedError)
 	mockMigrationState.On("Save").Return(nil)
 
-	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
+	playlistImporter := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	err := importer.insertAll(ctx, collectionID, itemIDs)
+	err := playlistImporter.insertAll(ctx, collectionID, itemIDs)
 
 	assert.Error(t, err)
 	assert.Equal(t, expectedError, err)
@@ -475,9 +476,9 @@ func TestYoutubeImporter_insertAll_APILimitReached(t *testing.T) {
 	}
 	mockMigrationState.On("Save").Return(nil)
 
-	importer := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
+	playlistImporter := newImporterTestNewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 
-	err := importer.insertAll(ctx, collectionID, itemIDs)
+	err := playlistImporter.insertAll(ctx, collectionID, itemIDs)
 
 	assert.NoError(t, err)
 }
@@ -510,10 +511,10 @@ func BenchmarkYoutubeImporter_Import(b *testing.B) {
 		mockMigrationState.On("UpdateItemToMigrated", mock.Anything).Return()
 		mockMigrationState.On("Save", mock.Anything).Return(nil)
 
-		importer := NewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
+		playlistImporter := NewImporter(mockSearcher, mockCollection, mockTargetWriter, mockMigrationState)
 		b.StartTimer()
 
-		_, err := importer.Import(ctx, collection)
+		_, err := playlistImporter.Import(ctx, collection)
 		if err != nil {
 			b.Fatal(err)
 		}
