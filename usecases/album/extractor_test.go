@@ -55,10 +55,10 @@ func TestAlbumExtractor_Extract_Success(t *testing.T) {
 	assert.Len(t, albums, 2)
 
 	assert.Equal(t, "Abbey Road", albums[0].Title)
-	assert.Equal(t, "The Beatles", albums[0].Artists)
+	assert.Equal(t, []string{"The Beatles"}, albums[0].Artists)
 
 	assert.Equal(t, "Dark Side of the Moon", albums[1].Title)
-	assert.Equal(t, "Pink Floyd", albums[1].Artists)
+	assert.Equal(t, []string{"Pink Floyd"}, albums[1].Artists)
 
 	mockGetAlbums.AssertExpectations(t)
 }
@@ -135,7 +135,7 @@ func TestAlbumExtractor_Extract_SingleAlbum(t *testing.T) {
 	assert.NotNil(t, result)
 	assert.Len(t, albums, 1)
 	assert.Equal(t, "Thriller", albums[0].Title)
-	assert.Equal(t, "Michael Jackson", albums[0].Artists)
+	assert.Equal(t, []string{"Michael Jackson"}, albums[0].Artists)
 
 	mockGetAlbums.AssertExpectations(t)
 }
