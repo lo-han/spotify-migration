@@ -5,6 +5,11 @@ const (
 	AlbumKind    = "album"
 )
 
+type Album struct {
+	Title  string
+	Artist string
+}
+
 type Collection struct {
 	Name   string
 	Musics []*Music

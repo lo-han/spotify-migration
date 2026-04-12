@@ -5,6 +5,14 @@ import (
 	"spotify_migration/entities/data"
 )
 
+type IGetAlbuns interface {
+	GetAlbuns(ctx context.Context) (albuns []*data.Album, err error)
+}
+
+type ISaveAlbuns interface {
+	SaveAlbuns(ctx context.Context, albuns []*data.Album) error
+}
+
 type ISourceGetter interface {
 	GetPlaylistID(ctx context.Context, resourceName string) (string, error)
 	GetPlaylistItems(ctx context.Context, resourceName, id string) (collection *data.Collection, err error)
