@@ -6,11 +6,11 @@ import (
 )
 
 type IExtractorUsecase interface {
-	Extract(ctx context.Context, resourceName string) (*data.Collection, error)
+	Extract(ctx context.Context, resourceName string) (any, error)
 }
 
 type IImporterUsecase interface {
-	Import(ctx context.Context, collection *data.Collection) (bool, error)
+	Import(ctx context.Context, collection any) (bool, error)
 }
 
 type IMigrationStateRepository interface {

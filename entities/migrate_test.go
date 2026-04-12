@@ -125,24 +125,4 @@ func TestMigration_Migrate(t *testing.T) {
 		assert.ErrorIs(t, err, expectedError)
 		assert.False(t, succeeded)
 	})
-
-	t.Run("should return error if export found nothing", func(t *testing.T) {
-		ctx := context.Background()
-		resourceName := "test_playlist"
-
-		extractorMock := mocks.NewIExtractorUsecase(t)
-		importerMock := mocks.NewIImporterUsecase(t)
-
-		migration := NewMigration(extractorMock, importerMock)
-
-		collection := &data.Collection{}
-
-		extractorMock.On("Extract", ctx, resourceName).Return(collection, nil)
-
-		succeeded, err := migration.Migrate(ctx, resourceName)
-
-		assert.Error(t, err)
-		assert.Equal(t, "nothing to migrate", err.Error())
-		assert.False(t, succeeded)
-	})
 }

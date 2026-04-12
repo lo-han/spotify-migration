@@ -2,32 +2,27 @@ package entities
 
 import (
 	"context"
-	"errors"
 )
 
 type Migration struct {
-	Extractor IExtractorUsecase
-	Importer  IImporterUsecase
+	extractor        IExtractorUsecase
+	playlistImporter IImporterUsecase
 }
 
-func NewMigration(extractor IExtractorUsecase, importer IImporterUsecase) *Migration {
+func NewMigration(extractor IExtractorUsecase, playlistImporter IImporterUsecase) *Migration {
 	return &Migration{
-		Extractor: extractor,
-		Importer:  importer,
+		extractor:        extractor,
+		playlistImporter: playlistImporter,
 	}
 }
 
 func (m *Migration) Migrate(ctx context.Context, resourceName string) (bool, error) {
-	resourceData, err := m.Extractor.Extract(ctx, resourceName)
+	resourceData, err := m.extractor.Extract(ctx, resourceName)
 	if err != nil {
 		return false, err
 	}
 
-	if len(resourceData.Musics) == 0 {
-		return false, errors.New("nothing to migrate")
-	}
-
-	succeeded, err := m.Importer.Import(ctx, resourceData)
+	succeeded, err := m.playlistImporter.Import(ctx, resourceData)
 	if err != nil {
 		return false, err
 	}
