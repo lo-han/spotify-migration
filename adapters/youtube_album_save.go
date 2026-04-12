@@ -48,10 +48,8 @@ func (s *youtubeAlbumSave) searchAlbums(ctx context.Context, albums []*data.Albu
 			continue
 		}
 
-		for _, item := range response.Items {
-			if item.Id.Kind == "youtube#playlist" {
-				albumsID = append(albumsID, item.Id.PlaylistId)
-			}
+		if response.Items[0].Id.Kind == "youtube#playlist" {
+			albumsID = append(albumsID, response.Items[0].Id.PlaylistId)
 		}
 	}
 	return albumsID, nil
