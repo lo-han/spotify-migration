@@ -35,7 +35,7 @@ func (s *youtubeAlbumSave) SaveAlbums(ctx context.Context, albums []*data.Album)
 func (s *youtubeAlbumSave) searchAlbums(ctx context.Context, albums []*data.Album) (albumsID []string, err error) {
 	for _, album := range albums {
 		call := s.service.Search.List([]string{"id", "snippet"}).
-			Q(album.Title + " " + entities.List(album.Artists) + " album").MaxResults(1).
+			Q(album.Title + " " + entities.List(album.Artists) + " album oficial channel").MaxResults(1).
 			Type("playlist").Context(ctx)
 
 		response, err := call.Context(ctx).Do()
