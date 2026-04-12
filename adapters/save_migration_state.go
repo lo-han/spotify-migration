@@ -71,20 +71,6 @@ func (m *MigrationState) UpdateItemToMigrated(itemID string) {
 	}
 }
 
-// func (m *MigrationState) UpdateItemToMigrated(item *data.Music) {
-// 	if m.items != nil {
-// 		currentState, exists := m.items[domain.ID(item)]
-
-// 		if !exists {
-// 			return
-// 		}
-// 		m.items[domain.ID(item)] = state{
-// 			state:   migratedState,
-// 			address: currentState.address,
-// 		}
-// 	}
-// }
-
 func (m *MigrationState) AddItem(item *data.Music, address string) {
 	if m.items != nil {
 
