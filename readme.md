@@ -2,8 +2,6 @@
 
 Automation to migrate playlist or albums from Spotify to Youtube
 
-_**Note**: Currently album migration is not supported_
-
 ## Setting
 
 ### Server
@@ -32,7 +30,6 @@ After Youtube and Spotify setup, add your credentials to a new `.env` file, like
 ```
 SPOTIFY_ID=
 SPOTIFY_SECRET=
-
 YOUTUBE_ID=
 YOUTUBE_SECRET=
 ```
@@ -51,9 +48,9 @@ Migrate playlist
 go run . playlist "<your_playlist_name>"
 ```
 
-Migrate album
+Migrate albums
 ``` bash
-go run . album "<album_name>"
+go run . albums
 ```
 
 _**Note**:You must authorize both Spotify and Youtube clicking the printed CLI links_

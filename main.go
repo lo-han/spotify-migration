@@ -40,10 +40,7 @@ func main() {
 
 	case data.AlbumKind:
 		spotifyExtractor = album.NewExtractor(adapters.NewSpotifyAlbumSearch(spotify.New(auth.Client(ctx, token))))
-
-		youtubeImporter = album.NewImporter(
-			adapters.NewYoutubeAlbumSave(youtubeService),
-		)
+		youtubeImporter = album.NewImporter(adapters.NewYoutubeAlbumSave(youtubeService))
 
 	default:
 		log.Printf("Unsupported resource kind: %s\n", resourceKind)

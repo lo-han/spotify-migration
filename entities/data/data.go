@@ -2,7 +2,7 @@ package data
 
 const (
 	PlaylistKind = "playlist"
-	AlbumKind    = "album"
+	AlbumKind    = "albums"
 )
 
 type Album struct {
