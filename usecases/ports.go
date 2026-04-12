@@ -6,11 +6,11 @@ import (
 )
 
 type IGetAlbuns interface {
-	GetAlbuns(ctx context.Context) (albuns []*data.Album, err error)
+	GetAlbuns(ctx context.Context) (albums []*data.Album, err error)
 }
 
 type ISaveAlbuns interface {
-	SaveAlbuns(ctx context.Context, albuns []*data.Album) error
+	SaveAlbuns(ctx context.Context, albums []*data.Album) error
 }
 
 type ISourceGetter interface {

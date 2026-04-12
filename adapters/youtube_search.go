@@ -24,15 +24,13 @@ func (s *youtubeSearch) SearchItem(ctx context.Context, music *data.Music) (item
 	if err != nil {
 		return "", err
 	}
-
 	if len(response.Items) == 0 {
 		return "", errors.New("item " + music.Title + " not found")
 	}
-
 	itemID = response.Items[0].Id.VideoId
 	return itemID, nil
 }
 
 func (s *youtubeSearch) buildSearchQuery(music *data.Music) string {
-	return music.Title + " " + music.Artist + " " + music.Album + " audio"
+	return music.Title + " " + music.Artist + " " + music.Album
 }

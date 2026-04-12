@@ -3,6 +3,7 @@ package album
 import (
 	"context"
 	"log"
+	"spotify_migration/entities"
 	domain "spotify_migration/entities"
 	"spotify_migration/usecases"
 )
@@ -18,30 +19,16 @@ type albumExtractor struct {
 }
 
 func (s *albumExtractor) Extract(ctx context.Context, resourceName string) (any, error) {
-	albuns, err := s.origin.GetAlbuns(ctx)
+	albums, err := s.origin.GetAlbuns(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(albuns) != 0 {
-		log.Println("Found albuns:")
-		for _, album := range albuns {
-			log.Printf("- %s by %s\n", album.Title, s.listArtists(album.Artists))
+	if len(albums) != 0 {
+		log.Println("Found albums:")
+		for _, album := range albums {
+			log.Printf("- %s by %s\n", album.Title, entities.List(album.Artists))
 		}
 	}
-	return albuns, nil
-}
-
-func (s *albumExtractor) listArtists(artists []string) string {
-	if len(artists) == 0 {
-		return ""
-	}
-	if len(artists) == 1 {
-		return artists[0]
-	}
-	result := artists[0]
-	for i := 1; i < len(artists); i++ {
-		result += ", " + artists[i]
-	}
-	return result
+	return albums, nil
 }

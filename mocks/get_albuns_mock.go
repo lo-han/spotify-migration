@@ -90,8 +90,8 @@ func (_c *IGetAlbuns_GetAlbuns_Call) Run(run func(ctx context.Context)) *IGetAlb
 	return _c
 }
 
-func (_c *IGetAlbuns_GetAlbuns_Call) Return(albuns []*data.Album, err error) *IGetAlbuns_GetAlbuns_Call {
-	_c.Call.Return(albuns, err)
+func (_c *IGetAlbuns_GetAlbuns_Call) Return(albums []*data.Album, err error) *IGetAlbuns_GetAlbuns_Call {
+	_c.Call.Return(albums, err)
 	return _c
 }
 

@@ -39,8 +39,8 @@ func (_m *ISaveAlbuns) EXPECT() *ISaveAlbuns_Expecter {
 }
 
 // SaveAlbuns provides a mock function for the type ISaveAlbuns
-func (_mock *ISaveAlbuns) SaveAlbuns(ctx context.Context, albuns []*data.Album) error {
-	ret := _mock.Called(ctx, albuns)
+func (_mock *ISaveAlbuns) SaveAlbuns(ctx context.Context, albums []*data.Album) error {
+	ret := _mock.Called(ctx, albums)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SaveAlbuns")
@@ -48,7 +48,7 @@ func (_mock *ISaveAlbuns) SaveAlbuns(ctx context.Context, albuns []*data.Album) 
 
 	var r0 error
 	if returnFunc, ok := ret.Get(0).(func(context.Context, []*data.Album) error); ok {
-		r0 = returnFunc(ctx, albuns)
+		r0 = returnFunc(ctx, albums)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -62,12 +62,12 @@ type ISaveAlbuns_SaveAlbuns_Call struct {
 
 // SaveAlbuns is a helper method to define mock.On call
 //   - ctx context.Context
-//   - albuns []*data.Album
-func (_e *ISaveAlbuns_Expecter) SaveAlbuns(ctx interface{}, albuns interface{}) *ISaveAlbuns_SaveAlbuns_Call {
-	return &ISaveAlbuns_SaveAlbuns_Call{Call: _e.mock.On("SaveAlbuns", ctx, albuns)}
+//   - albums []*data.Album
+func (_e *ISaveAlbuns_Expecter) SaveAlbuns(ctx interface{}, albums interface{}) *ISaveAlbuns_SaveAlbuns_Call {
+	return &ISaveAlbuns_SaveAlbuns_Call{Call: _e.mock.On("SaveAlbuns", ctx, albums)}
 }
 
-func (_c *ISaveAlbuns_SaveAlbuns_Call) Run(run func(ctx context.Context, albuns []*data.Album)) *ISaveAlbuns_SaveAlbuns_Call {
+func (_c *ISaveAlbuns_SaveAlbuns_Call) Run(run func(ctx context.Context, albums []*data.Album)) *ISaveAlbuns_SaveAlbuns_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -90,7 +90,7 @@ func (_c *ISaveAlbuns_SaveAlbuns_Call) Return(err error) *ISaveAlbuns_SaveAlbuns
 	return _c
 }
 
-func (_c *ISaveAlbuns_SaveAlbuns_Call) RunAndReturn(run func(ctx context.Context, albuns []*data.Album) error) *ISaveAlbuns_SaveAlbuns_Call {
+func (_c *ISaveAlbuns_SaveAlbuns_Call) RunAndReturn(run func(ctx context.Context, albums []*data.Album) error) *ISaveAlbuns_SaveAlbuns_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -26,19 +26,19 @@ func (s *playlistImporter) Import(ctx context.Context, collection any) (bool, er
 		return false, nil
 	}
 
-	albuns, ok := collection.([]*data.Album)
+	albums, ok := collection.([]*data.Album)
 	if !ok {
 		return false, errors.New("invalid album data")
 	}
 
-	if len(albuns) == 0 {
+	if len(albums) == 0 {
 		log.Println("No items to import.")
 		return false, nil
 	}
 
 	log.Println("Importing items...")
 
-	err := s.target.SaveAlbuns(ctx, albuns)
+	err := s.target.SaveAlbuns(ctx, albums)
 
 	return err == nil, err
 }
