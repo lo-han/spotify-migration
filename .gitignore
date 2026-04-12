@@ -5,3 +5,4 @@ __debug*
 server.*
 *migration_state.json
 coverage.out
+spotify_migration
