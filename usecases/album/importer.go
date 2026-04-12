@@ -10,7 +10,7 @@ import (
 )
 
 func NewImporter(
-	target usecases.ISaveAlbuns,
+	target usecases.ISaveAlbums,
 ) entities.IImporterUsecase {
 	return &playlistImporter{
 		target: target,
@@ -18,7 +18,7 @@ func NewImporter(
 }
 
 type playlistImporter struct {
-	target usecases.ISaveAlbuns
+	target usecases.ISaveAlbums
 }
 
 func (s *playlistImporter) Import(ctx context.Context, collection any) (bool, error) {
@@ -38,7 +38,7 @@ func (s *playlistImporter) Import(ctx context.Context, collection any) (bool, er
 
 	log.Println("Importing items...")
 
-	err := s.target.SaveAlbuns(ctx, albums)
+	err := s.target.SaveAlbums(ctx, albums)
 
 	return err == nil, err
 }

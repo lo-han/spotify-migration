@@ -8,18 +8,18 @@ import (
 	"spotify_migration/usecases"
 )
 
-func NewExtractor(origin usecases.IGetAlbuns) domain.IExtractorUsecase {
+func NewExtractor(origin usecases.IGetAlbums) domain.IExtractorUsecase {
 	return &albumExtractor{
 		origin: origin,
 	}
 }
 
 type albumExtractor struct {
-	origin usecases.IGetAlbuns
+	origin usecases.IGetAlbums
 }
 
 func (s *albumExtractor) Extract(ctx context.Context, resourceName string) (any, error) {
-	albums, err := s.origin.GetAlbuns(ctx)
+	albums, err := s.origin.GetAlbums(ctx)
 	if err != nil {
 		return nil, err
 	}

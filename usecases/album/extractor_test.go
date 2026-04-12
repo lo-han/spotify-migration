@@ -12,10 +12,10 @@ import (
 
 func TestNewExtractor(t *testing.T) {
 	// Arrange
-	mockGetAlbuns := mocks.NewIGetAlbuns(t)
+	mockGetAlbums := mocks.NewIGetAlbums(t)
 
 	// Act
-	extractorUsecase := NewExtractor(mockGetAlbuns)
+	extractorUsecase := NewExtractor(mockGetAlbums)
 
 	// Assert
 	assert.NotNil(t, extractorUsecase)
@@ -28,19 +28,19 @@ func TestAlbumExtractor_Extract_Success(t *testing.T) {
 
 	expectedAlbums := []*data.Album{
 		{
-			Title:  "Abbey Road",
+			Title:   "Abbey Road",
 			Artists: []string{"The Beatles"},
 		},
 		{
-			Title:  "Dark Side of the Moon",
+			Title:   "Dark Side of the Moon",
 			Artists: []string{"Pink Floyd"},
 		},
 	}
 
-	mockGetAlbuns := mocks.NewIGetAlbuns(t)
-	mockGetAlbuns.On("GetAlbuns", ctx).Return(expectedAlbums, nil)
+	mockGetAlbums := mocks.NewIGetAlbums(t)
+	mockGetAlbums.On("GetAlbums", ctx).Return(expectedAlbums, nil)
 
-	albumExtractor := NewExtractor(mockGetAlbuns)
+	albumExtractor := NewExtractor(mockGetAlbums)
 
 	result, err := albumExtractor.Extract(ctx, resourceName)
 
@@ -60,7 +60,7 @@ func TestAlbumExtractor_Extract_Success(t *testing.T) {
 	assert.Equal(t, "Dark Side of the Moon", albums[1].Title)
 	assert.Equal(t, "Pink Floyd", albums[1].Artists)
 
-	mockGetAlbuns.AssertExpectations(t)
+	mockGetAlbums.AssertExpectations(t)
 }
 
 func TestAlbumExtractor_Extract_EmptyAlbums(t *testing.T) {
@@ -69,10 +69,10 @@ func TestAlbumExtractor_Extract_EmptyAlbums(t *testing.T) {
 
 	expectedAlbums := []*data.Album{}
 
-	mockGetAlbuns := mocks.NewIGetAlbuns(t)
-	mockGetAlbuns.On("GetAlbuns", ctx).Return(expectedAlbums, nil)
+	mockGetAlbums := mocks.NewIGetAlbums(t)
+	mockGetAlbums.On("GetAlbums", ctx).Return(expectedAlbums, nil)
 
-	albumExtractor := NewExtractor(mockGetAlbuns)
+	albumExtractor := NewExtractor(mockGetAlbums)
 
 	result, err := albumExtractor.Extract(ctx, resourceName)
 
@@ -86,18 +86,18 @@ func TestAlbumExtractor_Extract_EmptyAlbums(t *testing.T) {
 	assert.Equal(t, expectedAlbums, albums)
 	assert.Len(t, albums, 0)
 
-	mockGetAlbuns.AssertExpectations(t)
+	mockGetAlbums.AssertExpectations(t)
 }
 
-func TestAlbumExtractor_Extract_GetAlbunsError(t *testing.T) {
+func TestAlbumExtractor_Extract_GetAlbumsError(t *testing.T) {
 	ctx := context.Background()
 	resourceName := "My Albums"
 	expectedError := errors.New("failed to fetch albums")
 
-	mockGetAlbuns := mocks.NewIGetAlbuns(t)
-	mockGetAlbuns.On("GetAlbuns", ctx).Return(nil, expectedError)
+	mockGetAlbums := mocks.NewIGetAlbums(t)
+	mockGetAlbums.On("GetAlbums", ctx).Return(nil, expectedError)
 
-	albumExtractor := NewExtractor(mockGetAlbuns)
+	albumExtractor := NewExtractor(mockGetAlbums)
 
 	result, err := albumExtractor.Extract(ctx, resourceName)
 
@@ -105,7 +105,7 @@ func TestAlbumExtractor_Extract_GetAlbunsError(t *testing.T) {
 	assert.Nil(t, result)
 	assert.Equal(t, expectedError, err)
 
-	mockGetAlbuns.AssertExpectations(t)
+	mockGetAlbums.AssertExpectations(t)
 }
 
 func TestAlbumExtractor_Extract_SingleAlbum(t *testing.T) {
@@ -114,15 +114,15 @@ func TestAlbumExtractor_Extract_SingleAlbum(t *testing.T) {
 
 	expectedAlbums := []*data.Album{
 		{
-			Title:  "Thriller",
+			Title:   "Thriller",
 			Artists: []string{"Michael Jackson"},
 		},
 	}
 
-	mockGetAlbuns := mocks.NewIGetAlbuns(t)
-	mockGetAlbuns.On("GetAlbuns", ctx).Return(expectedAlbums, nil)
+	mockGetAlbums := mocks.NewIGetAlbums(t)
+	mockGetAlbums.On("GetAlbums", ctx).Return(expectedAlbums, nil)
 
-	albumExtractor := NewExtractor(mockGetAlbuns)
+	albumExtractor := NewExtractor(mockGetAlbums)
 
 	result, err := albumExtractor.Extract(ctx, resourceName)
 
@@ -137,5 +137,5 @@ func TestAlbumExtractor_Extract_SingleAlbum(t *testing.T) {
 	assert.Equal(t, "Thriller", albums[0].Title)
 	assert.Equal(t, "Michael Jackson", albums[0].Artists)
 
-	mockGetAlbuns.AssertExpectations(t)
+	mockGetAlbums.AssertExpectations(t)
 }

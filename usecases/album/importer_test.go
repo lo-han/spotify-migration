@@ -12,10 +12,10 @@ import (
 
 func TestNewImporter(t *testing.T) {
 	// Arrange
-	mockSaveAlbuns := mocks.NewISaveAlbuns(t)
+	mockSaveAlbums := mocks.NewISaveAlbums(t)
 
 	// Act
-	importerUsecase := NewImporter(mockSaveAlbuns)
+	importerUsecase := NewImporter(mockSaveAlbums)
 
 	// Assert
 	assert.NotNil(t, importerUsecase)
@@ -35,55 +35,55 @@ func TestAlbumImporter_Import_Success(t *testing.T) {
 		},
 	}
 
-	mockSaveAlbuns := mocks.NewISaveAlbuns(t)
-	mockSaveAlbuns.On("SaveAlbuns", ctx, albums).Return(nil)
+	mockSaveAlbums := mocks.NewISaveAlbums(t)
+	mockSaveAlbums.On("SaveAlbums", ctx, albums).Return(nil)
 
-	albumImporter := NewImporter(mockSaveAlbuns)
+	albumImporter := NewImporter(mockSaveAlbums)
 
 	result, err := albumImporter.Import(ctx, albums)
 
 	assert.NoError(t, err)
 	assert.True(t, result)
 
-	mockSaveAlbuns.AssertExpectations(t)
+	mockSaveAlbums.AssertExpectations(t)
 }
 
 func TestAlbumImporter_Import_EmptyAlbums(t *testing.T) {
 	ctx := context.Background()
 	albums := []*data.Album{}
 
-	mockSaveAlbuns := mocks.NewISaveAlbuns(t)
+	mockSaveAlbums := mocks.NewISaveAlbums(t)
 
-	albumImporter := NewImporter(mockSaveAlbuns)
+	albumImporter := NewImporter(mockSaveAlbums)
 
 	result, err := albumImporter.Import(ctx, albums)
 
 	assert.NoError(t, err)
 	assert.False(t, result)
 
-	mockSaveAlbuns.AssertExpectations(t)
+	mockSaveAlbums.AssertExpectations(t)
 }
 
 func TestAlbumImporter_Import_NilCollection(t *testing.T) {
-	mockSaveAlbuns := mocks.NewISaveAlbuns(t)
+	mockSaveAlbums := mocks.NewISaveAlbums(t)
 
-	albumImporter := NewImporter(mockSaveAlbuns)
+	albumImporter := NewImporter(mockSaveAlbums)
 
 	result, err := albumImporter.Import(context.Background(), nil)
 
 	assert.NoError(t, err)
 	assert.False(t, result)
 
-	mockSaveAlbuns.AssertExpectations(t)
+	mockSaveAlbums.AssertExpectations(t)
 }
 
 func TestAlbumImporter_Import_InvalidCollectionType(t *testing.T) {
 	ctx := context.Background()
 	invalidCollection := "not an album slice"
 
-	mockSaveAlbuns := mocks.NewISaveAlbuns(t)
+	mockSaveAlbums := mocks.NewISaveAlbums(t)
 
-	albumImporter := NewImporter(mockSaveAlbuns)
+	albumImporter := NewImporter(mockSaveAlbums)
 
 	result, err := albumImporter.Import(ctx, invalidCollection)
 
@@ -91,10 +91,10 @@ func TestAlbumImporter_Import_InvalidCollectionType(t *testing.T) {
 	assert.False(t, result)
 	assert.Equal(t, "invalid album data", err.Error())
 
-	mockSaveAlbuns.AssertExpectations(t)
+	mockSaveAlbums.AssertExpectations(t)
 }
 
-func TestAlbumImporter_Import_SaveAlbunsError(t *testing.T) {
+func TestAlbumImporter_Import_SaveAlbumsError(t *testing.T) {
 	ctx := context.Background()
 	albums := []*data.Album{
 		{
@@ -104,10 +104,10 @@ func TestAlbumImporter_Import_SaveAlbunsError(t *testing.T) {
 	}
 	expectedError := errors.New("failed to save albums")
 
-	mockSaveAlbuns := mocks.NewISaveAlbuns(t)
-	mockSaveAlbuns.On("SaveAlbuns", ctx, albums).Return(expectedError)
+	mockSaveAlbums := mocks.NewISaveAlbums(t)
+	mockSaveAlbums.On("SaveAlbums", ctx, albums).Return(expectedError)
 
-	albumImporter := NewImporter(mockSaveAlbuns)
+	albumImporter := NewImporter(mockSaveAlbums)
 
 	result, err := albumImporter.Import(ctx, albums)
 
@@ -115,7 +115,7 @@ func TestAlbumImporter_Import_SaveAlbunsError(t *testing.T) {
 	assert.False(t, result)
 	assert.Equal(t, expectedError, err)
 
-	mockSaveAlbuns.AssertExpectations(t)
+	mockSaveAlbums.AssertExpectations(t)
 }
 
 func TestAlbumImporter_Import_SingleAlbum(t *testing.T) {
@@ -127,17 +127,17 @@ func TestAlbumImporter_Import_SingleAlbum(t *testing.T) {
 		},
 	}
 
-	mockSaveAlbuns := mocks.NewISaveAlbuns(t)
-	mockSaveAlbuns.On("SaveAlbuns", ctx, albums).Return(nil)
+	mockSaveAlbums := mocks.NewISaveAlbums(t)
+	mockSaveAlbums.On("SaveAlbums", ctx, albums).Return(nil)
 
-	albumImporter := NewImporter(mockSaveAlbuns)
+	albumImporter := NewImporter(mockSaveAlbums)
 
 	result, err := albumImporter.Import(ctx, albums)
 
 	assert.NoError(t, err)
 	assert.True(t, result)
 
-	mockSaveAlbuns.AssertExpectations(t)
+	mockSaveAlbums.AssertExpectations(t)
 }
 
 func TestAlbumImporter_Import_LargeAlbumCollection(t *testing.T) {
@@ -152,15 +152,15 @@ func TestAlbumImporter_Import_LargeAlbumCollection(t *testing.T) {
 		}
 	}
 
-	mockSaveAlbuns := mocks.NewISaveAlbuns(t)
-	mockSaveAlbuns.On("SaveAlbuns", ctx, albums).Return(nil)
+	mockSaveAlbums := mocks.NewISaveAlbums(t)
+	mockSaveAlbums.On("SaveAlbums", ctx, albums).Return(nil)
 
-	albumImporter := NewImporter(mockSaveAlbuns)
+	albumImporter := NewImporter(mockSaveAlbums)
 
 	result, err := albumImporter.Import(ctx, albums)
 
 	assert.NoError(t, err)
 	assert.True(t, result)
 
-	mockSaveAlbuns.AssertExpectations(t)
+	mockSaveAlbums.AssertExpectations(t)
 }

@@ -5,12 +5,12 @@ import (
 	"spotify_migration/entities/data"
 )
 
-type IGetAlbuns interface {
-	GetAlbuns(ctx context.Context) (albums []*data.Album, err error)
+type IGetAlbums interface {
+	GetAlbums(ctx context.Context) (albums []*data.Album, err error)
 }
 
-type ISaveAlbuns interface {
-	SaveAlbuns(ctx context.Context, albums []*data.Album) error
+type ISaveAlbums interface {
+	SaveAlbums(ctx context.Context, albums []*data.Album) error
 }
 
 type ISourceGetter interface {

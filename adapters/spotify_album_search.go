@@ -12,11 +12,11 @@ type spotifyAlbumSearch struct {
 	client *spotify.Client
 }
 
-func NewSpotifyAlbumSearch(client *spotify.Client) usecases.IGetAlbuns {
+func NewSpotifyAlbumSearch(client *spotify.Client) usecases.IGetAlbums {
 	return &spotifyAlbumSearch{client: client}
 }
 
-func (s *spotifyAlbumSearch) GetAlbuns(ctx context.Context) (albums []*data.Album, err error) {
+func (s *spotifyAlbumSearch) GetAlbums(ctx context.Context) (albums []*data.Album, err error) {
 	albumPage, err := s.client.CurrentUsersAlbums(ctx)
 	if err != nil {
 		return nil, err

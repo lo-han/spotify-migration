@@ -14,13 +14,13 @@ type youtubeAlbumSave struct {
 	service *youtube.Service
 }
 
-func NewYoutubeAlbumSave(service *youtube.Service) usecases.ISaveAlbuns {
+func NewYoutubeAlbumSave(service *youtube.Service) usecases.ISaveAlbums {
 	return &youtubeAlbumSave{
 		service: service,
 	}
 }
 
-func (s *youtubeAlbumSave) SaveAlbuns(ctx context.Context, albums []*data.Album) error {
+func (s *youtubeAlbumSave) SaveAlbums(ctx context.Context, albums []*data.Album) error {
 	albumIDs, err := s.searchAlbums(ctx, albums)
 	if err != nil {
 		return err
