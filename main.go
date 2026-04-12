@@ -14,15 +14,24 @@ import (
 )
 
 func main() {
-	if len(os.Args) < 3 {
-		log.Println("Please provide a resource kind and name")
-		return
-	}
-	resourceKind := os.Args[1]
-	resourceName := os.Args[2]
-
+	var resourceKind, resourceName string
 	var spotifyExtractor entities.IExtractorUsecase
 	var youtubeImporter entities.IImporterUsecase
+
+	if len(os.Args) < 2 {
+		log.Println("Please provide a resource kind")
+		return
+	}
+
+	resourceKind = os.Args[1]
+
+	if resourceKind == data.PlaylistKind {
+		if len(os.Args) < 3 {
+			log.Println("Please provide a playlist name")
+			return
+		}
+		resourceName = os.Args[2]
+	}
 
 	ctx := context.Background()
 	auth, token, youtubeService := Authorize(ctx)
