@@ -7,7 +7,7 @@ const (
 
 type Album struct {
 	Title  string
-	Artist string
+	Artists []string
 }
 
 type Collection struct {

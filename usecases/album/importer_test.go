@@ -26,12 +26,12 @@ func TestAlbumImporter_Import_Success(t *testing.T) {
 	ctx := context.Background()
 	albums := []*data.Album{
 		{
-			Title:  "Abbey Road",
-			Artist: "The Beatles",
+			Title:   "Abbey Road",
+			Artists: []string{"The Beatles"},
 		},
 		{
-			Title:  "Dark Side of the Moon",
-			Artist: "Pink Floyd",
+			Title:   "Dark Side of the Moon",
+			Artists: []string{"Pink Floyd"},
 		},
 	}
 
@@ -98,8 +98,8 @@ func TestAlbumImporter_Import_SaveAlbunsError(t *testing.T) {
 	ctx := context.Background()
 	albums := []*data.Album{
 		{
-			Title:  "Thriller",
-			Artist: "Michael Jackson",
+			Title:   "Thriller",
+			Artists: []string{"Michael Jackson"},
 		},
 	}
 	expectedError := errors.New("failed to save albums")
@@ -122,8 +122,8 @@ func TestAlbumImporter_Import_SingleAlbum(t *testing.T) {
 	ctx := context.Background()
 	albums := []*data.Album{
 		{
-			Title:  "Nevermind",
-			Artist: "Nirvana",
+			Title:   "Nevermind",
+			Artists: []string{"Nirvana"},
 		},
 	}
 
@@ -147,8 +147,8 @@ func TestAlbumImporter_Import_LargeAlbumCollection(t *testing.T) {
 	albums := make([]*data.Album, 100)
 	for i := 0; i < 100; i++ {
 		albums[i] = &data.Album{
-			Title:  "Album " + string(rune(i)),
-			Artist: "Artist " + string(rune(i)),
+			Title:   "Album " + string(rune(i)),
+			Artists: []string{"Artists " + string(rune(i))},
 		}
 	}
 
