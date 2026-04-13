@@ -36,8 +36,8 @@ func (s *youtubeAlbumSave) searchAlbums(ctx context.Context, albums *data.Collec
 	for album := albums.Current(); album != nil; album = album.Next() {
 
 		call := s.service.Search.List([]string{"id", "snippet"}).
-			Q(album.Name + " " + entities.ReadStr(album.Artist) + " album oficial channel").MaxResults(1).
-			Type("playlist").Context(ctx)
+			Q(album.Name + " " + entities.ReadStr(album.Artist) + " album official channel").MaxResults(1).
+			Type("playlist")
 
 		response, err := call.Context(ctx).Do()
 		if err != nil {

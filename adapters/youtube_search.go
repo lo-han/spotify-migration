@@ -19,7 +19,7 @@ func NewYoutubeSearch(service *youtube.Service) *youtubeSearch {
 
 func (s *youtubeSearch) SearchItem(ctx context.Context, music *data.Music) (itemID string, err error) {
 	call := s.service.Search.List([]string{"id", "snippet"}).Q(s.buildSearchQuery(music)).MaxResults(1).
-		Type("video").Context(ctx)
+		Type("video")
 
 	response, err := call.Context(ctx).Do()
 	if err != nil {
