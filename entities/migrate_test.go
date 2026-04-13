@@ -24,9 +24,9 @@ func TestMigration_Migrate(t *testing.T) {
 		collection := &data.Collection{
 			Musics: []*data.Music{
 				{
-					Title:  "Song 1",
+					Name:   "Song 1",
 					Artist: "Artist 1",
-					Album:  "Album 1",
+					Album:  PtrStr("Collection 1"),
 				},
 			},
 		}
@@ -52,9 +52,9 @@ func TestMigration_Migrate(t *testing.T) {
 		collection := &data.Collection{
 			Musics: []*data.Music{
 				{
-					Title:  "Song 1",
+					Name:   "Song 1",
 					Artist: "Artist 1",
-					Album:  "Album 1",
+					Album:  PtrStr("Collection 1"),
 				},
 			},
 		}
@@ -80,9 +80,9 @@ func TestMigration_Migrate(t *testing.T) {
 		collection := &data.Collection{
 			Musics: []*data.Music{
 				{
-					Title:  "Song 1",
+					Name:   "Song 1",
 					Artist: "Artist 1",
-					Album:  "Album 1",
+					Album:  PtrStr("Collection 1"),
 				},
 			},
 		}
@@ -108,9 +108,9 @@ func TestMigration_Migrate(t *testing.T) {
 		collection := &data.Collection{
 			Musics: []*data.Music{
 				{
-					Title:  "Song 1",
+					Name:   "Song 1",
 					Artist: "Artist 1",
-					Album:  "Album 1",
+					Album:  PtrStr("Collection 1"),
 				},
 			},
 		}

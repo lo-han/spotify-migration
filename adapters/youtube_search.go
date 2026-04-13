@@ -3,6 +3,7 @@ package adapters
 import (
 	"context"
 	"errors"
+	"spotify_migration/entities"
 	"spotify_migration/entities/data"
 
 	"google.golang.org/api/youtube/v3"
@@ -25,12 +26,12 @@ func (s *youtubeSearch) SearchItem(ctx context.Context, music *data.Music) (item
 		return "", err
 	}
 	if len(response.Items) == 0 {
-		return "", errors.New("item " + music.Title + " not found")
+		return "", errors.New("item " + music.Name + " not found")
 	}
 	itemID = response.Items[0].Id.VideoId
 	return itemID, nil
 }
 
 func (s *youtubeSearch) buildSearchQuery(music *data.Music) string {
-	return music.Title + " " + music.Artist + " " + music.Album
+	return music.Name + " " + music.Artist + " " + entities.ReadStr(music.Album)
 }

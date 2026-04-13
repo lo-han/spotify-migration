@@ -16,9 +16,9 @@ func TestID(t *testing.T) {
 
 	t.Run("Standard music with all fields", func(t *testing.T) {
 		music := &data.Music{
-			Title:  "Bohemian Rhapsody",
+			Name:   "Bohemian Rhapsody",
 			Artist: "Queen",
-			Album:  "A Night at the Opera",
+			Album:  PtrStr("A Night at the Opera"),
 		}
 
 		expected := "Bohemian Rhapsody_Queen_A Night at the Opera"
@@ -31,9 +31,9 @@ func TestID(t *testing.T) {
 
 	t.Run("Music with empty title", func(t *testing.T) {
 		music := &data.Music{
-			Title:  "",
+			Name:   "",
 			Artist: "The Beatles",
-			Album:  "Abbey Road",
+			Album:  PtrStr("Abbey Road"),
 		}
 
 		expected := "_The Beatles_Abbey Road"
@@ -46,9 +46,9 @@ func TestID(t *testing.T) {
 
 	t.Run("Music with empty artist", func(t *testing.T) {
 		music := &data.Music{
-			Title:  "Imagine",
+			Name:   "Imagine",
 			Artist: "",
-			Album:  "Imagine",
+			Album:  PtrStr("Imagine"),
 		}
 
 		expected := "Imagine__Imagine"
@@ -61,9 +61,9 @@ func TestID(t *testing.T) {
 
 	t.Run("Music with empty album", func(t *testing.T) {
 		music := &data.Music{
-			Title:  "Hotel California",
+			Name:   "Hotel California",
 			Artist: "Eagles",
-			Album:  "",
+			Album:  PtrStr(""),
 		}
 
 		expected := "Hotel California_Eagles_"
@@ -76,9 +76,9 @@ func TestID(t *testing.T) {
 
 	t.Run("Music with all empty fields", func(t *testing.T) {
 		music := &data.Music{
-			Title:  "",
+			Name:   "",
 			Artist: "",
-			Album:  "",
+			Album:  PtrStr(""),
 		}
 
 		expected := "__"
@@ -91,9 +91,9 @@ func TestID(t *testing.T) {
 
 	t.Run("Music with special characters", func(t *testing.T) {
 		music := &data.Music{
-			Title:  "Don't Stop Me Now",
+			Name:   "Don't Stop Me Now",
 			Artist: "Queen & David Bowie",
-			Album:  "Jazz (Deluxe Edition)",
+			Album:  PtrStr("Jazz (Deluxe Edition)"),
 		}
 
 		expected := "Don't Stop Me Now_Queen & David Bowie_Jazz (Deluxe Edition)"
@@ -106,9 +106,9 @@ func TestID(t *testing.T) {
 
 	t.Run("Music with underscores in fields", func(t *testing.T) {
 		music := &data.Music{
-			Title:  "Song_With_Underscores",
+			Name:   "Song_With_Underscores",
 			Artist: "Artist_Name",
-			Album:  "Album_Title",
+			Album:  PtrStr("Album_Title"),
 		}
 
 		expected := "Song_With_Underscores_Artist_Name_Album_Title"
@@ -121,9 +121,9 @@ func TestID(t *testing.T) {
 
 	t.Run("Music with whitespace", func(t *testing.T) {
 		music := &data.Music{
-			Title:  "  Stairway to Heaven  ",
+			Name:   "  Stairway to Heaven  ",
 			Artist: "  Led Zeppelin  ",
-			Album:  "  Led Zeppelin IV  ",
+			Album:  PtrStr("  Led Zeppelin IV  "),
 		}
 
 		expected := "  Stairway to Heaven  _  Led Zeppelin  _  Led Zeppelin IV  "
@@ -138,9 +138,9 @@ func TestID(t *testing.T) {
 func TestID_Consistency(t *testing.T) {
 	t.Run("Same music produces same ID", func(t *testing.T) {
 		music := &data.Music{
-			Title:  "Test Song",
+			Name:   "Test Song",
 			Artist: "Test Artist",
-			Album:  "Test Album",
+			Album:  PtrStr("Test Album"),
 		}
 
 		id1 := ID(music)
@@ -153,15 +153,15 @@ func TestID_Consistency(t *testing.T) {
 
 	t.Run("Different music with same fields produces same ID", func(t *testing.T) {
 		music1 := &data.Music{
-			Title:  "Test Song",
+			Name:   "Test Song",
 			Artist: "Test Artist",
-			Album:  "Test Album",
+			Album:  PtrStr("Test Album"),
 		}
 
 		music2 := &data.Music{
-			Title:  "Test Song",
+			Name:   "Test Song",
 			Artist: "Test Artist",
-			Album:  "Test Album",
+			Album:  PtrStr("Test Album"),
 		}
 
 		id1 := ID(music1)
@@ -174,15 +174,15 @@ func TestID_Consistency(t *testing.T) {
 
 	t.Run("Different music produces different ID", func(t *testing.T) {
 		music1 := &data.Music{
-			Title:  "Test Song 1",
+			Name:   "Test Song 1",
 			Artist: "Test Artist",
-			Album:  "Test Album",
+			Album:  PtrStr("Test Album"),
 		}
 
 		music2 := &data.Music{
-			Title:  "Test Song 2",
+			Name:   "Test Song 2",
 			Artist: "Test Artist",
-			Album:  "Test Album",
+			Album:  PtrStr("Test Album"),
 		}
 
 		id1 := ID(music1)

@@ -39,23 +39,23 @@ func (_m *IGetAlbums) EXPECT() *IGetAlbums_Expecter {
 }
 
 // GetAlbums provides a mock function for the type IGetAlbums
-func (_mock *IGetAlbums) GetAlbums(ctx context.Context) ([]*data.Album, error) {
+func (_mock *IGetAlbums) GetAlbums(ctx context.Context) (*data.Collection, error) {
 	ret := _mock.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAlbums")
 	}
 
-	var r0 []*data.Album
+	var r0 *data.Collection
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]*data.Album, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context) (*data.Collection, error)); ok {
 		return returnFunc(ctx)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context) []*data.Album); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context) *data.Collection); ok {
 		r0 = returnFunc(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*data.Album)
+			r0 = ret.Get(0).(*data.Collection)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
@@ -90,12 +90,12 @@ func (_c *IGetAlbums_GetAlbums_Call) Run(run func(ctx context.Context)) *IGetAlb
 	return _c
 }
 
-func (_c *IGetAlbums_GetAlbums_Call) Return(albums []*data.Album, err error) *IGetAlbums_GetAlbums_Call {
+func (_c *IGetAlbums_GetAlbums_Call) Return(albums *data.Collection, err error) *IGetAlbums_GetAlbums_Call {
 	_c.Call.Return(albums, err)
 	return _c
 }
 
-func (_c *IGetAlbums_GetAlbums_Call) RunAndReturn(run func(ctx context.Context) ([]*data.Album, error)) *IGetAlbums_GetAlbums_Call {
+func (_c *IGetAlbums_GetAlbums_Call) RunAndReturn(run func(ctx context.Context) (*data.Collection, error)) *IGetAlbums_GetAlbums_Call {
 	_c.Call.Return(run)
 	return _c
 }

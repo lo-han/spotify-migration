@@ -3,6 +3,7 @@ package playlist
 import (
 	"context"
 	"errors"
+	"spotify_migration/entities"
 	"spotify_migration/entities/data"
 	"spotify_migration/mocks"
 	"testing"
@@ -11,13 +12,10 @@ import (
 )
 
 func TestNewPlaylistExtractor(t *testing.T) {
-	// Arrange
 	mockSourceGetter := mocks.NewISourceGetter(t)
 
-	// Act
 	extractorUsecase := NewExtractor(mockSourceGetter)
 
-	// Assert
 	assert.NotNil(t, extractorUsecase)
 	assert.IsType(t, &playlistExtractor{}, extractorUsecase)
 }
@@ -31,14 +29,14 @@ func TestSpotifyPlaylistExtractor_Extract_Success(t *testing.T) {
 		Name: "My Test Playlist",
 		Musics: []*data.Music{
 			{
-				Title:  "Song 1",
+				Name:   "Song 1",
 				Artist: "Artist 1",
-				Album:  "Album 1",
+				Album:  entities.PtrStr("Collection 1"),
 			},
 			{
-				Title:  "Song 2",
+				Name:   "Song 2",
 				Artist: "Artist 2",
-				Album:  "Album 2",
+				Album:  entities.PtrStr("Collection 2"),
 			},
 		},
 	}
@@ -49,12 +47,7 @@ func TestSpotifyPlaylistExtractor_Extract_Success(t *testing.T) {
 
 	playlistExtractor := NewExtractor(mockSourceGetter)
 
-	musics, err := playlistExtractor.Extract(ctx, resourceName)
-
-	result, ok := musics.(*data.Collection)
-	if !ok {
-		panic("invalid collection data")
-	}
+	result, err := playlistExtractor.Extract(ctx, resourceName)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
@@ -62,13 +55,13 @@ func TestSpotifyPlaylistExtractor_Extract_Success(t *testing.T) {
 	assert.Equal(t, "My Test Playlist", result.Name)
 	assert.Len(t, result.Musics, 2)
 
-	assert.Equal(t, "Song 1", result.Musics[0].Title)
+	assert.Equal(t, "Song 1", result.Musics[0].Name)
 	assert.Equal(t, "Artist 1", result.Musics[0].Artist)
-	assert.Equal(t, "Album 1", result.Musics[0].Album)
+	assert.Equal(t, "Collection 1", *result.Musics[0].Album)
 
-	assert.Equal(t, "Song 2", result.Musics[1].Title)
+	assert.Equal(t, "Song 2", result.Musics[1].Name)
 	assert.Equal(t, "Artist 2", result.Musics[1].Artist)
-	assert.Equal(t, "Album 2", result.Musics[1].Album)
+	assert.Equal(t, "Collection 2", *result.Musics[1].Album)
 
 	mockSourceGetter.AssertExpectations(t)
 }
@@ -89,12 +82,7 @@ func TestSpotifyPlaylistExtractor_Extract_EmptyPlaylist(t *testing.T) {
 
 	playlistExtractor := NewExtractor(mockSourceGetter)
 
-	musics, err := playlistExtractor.Extract(ctx, resourceName)
-
-	result, ok := musics.(*data.Collection)
-	if !ok {
-		panic("invalid collection data")
-	}
+	result, err := playlistExtractor.Extract(ctx, resourceName)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)

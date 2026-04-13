@@ -13,7 +13,7 @@ import (
 )
 
 func newImporterTestNewImporter(
-	searcher usecases.ITargetSearch, collection usecases.ITargetCollection, targetWriter usecases.ITargetWriter, migrationState entities.IMigrationStateRepository,
+	searcher usecases.ITargetSearch, collection usecases.ITargetCollection, targetWriter usecases.ITargetWriter, migrationState data.IMigrationStateRepository,
 ) *playlistImporter {
 
 	return &playlistImporter{
@@ -50,8 +50,8 @@ func TestYoutubeImporter_Import_Success_ExistingCollection(t *testing.T) {
 	collection := &data.Collection{
 		Name: "Test Playlist",
 		Musics: []*data.Music{
-			{Title: "Song 1", Artist: "Artist 1", Album: "Album 1"},
-			{Title: "Song 2", Artist: "Artist 2", Album: "Album 2"},
+			{Name: "Song 1", Artist: "Artist 1", Album: entities.PtrStr("Collection 1")},
+			{Name: "Song 2", Artist: "Artist 2", Album: entities.PtrStr("Collection 2")},
 		},
 	}
 
@@ -246,8 +246,8 @@ func TestYoutubeImporter_getNewItems_Success(t *testing.T) {
 	collection := &data.Collection{
 		Name: "Test Playlist",
 		Musics: []*data.Music{
-			{Title: "Song 1", Artist: "Artist 1", Album: "Album 1"},
-			{Title: "Song 2", Artist: "Artist 2", Album: "Album 2"},
+			{Name: "Song 1", Artist: "Artist 1", Album: entities.PtrStr("Collection 1")},
+			{Name: "Song 2", Artist: "Artist 2", Album: entities.PtrStr("Collection 2")},
 		},
 	}
 	pendingItems := map[string]string{}
@@ -280,8 +280,8 @@ func TestYoutubeImporter_getNewItems_WithExistingItems(t *testing.T) {
 	collection := &data.Collection{
 		Name: "Test Playlist",
 		Musics: []*data.Music{
-			{Title: "Song 1", Artist: "Artist 1", Album: "Album 1"},
-			{Title: "Song 2", Artist: "Artist 2", Album: "Album 2"},
+			{Name: "Song 1", Artist: "Artist 1", Album: entities.PtrStr("Collection 1")},
+			{Name: "Song 2", Artist: "Artist 2", Album: entities.PtrStr("Collection 2")},
 		},
 	}
 
@@ -317,8 +317,8 @@ func TestYoutubeImporter_getNewItems_APILimitReached(t *testing.T) {
 	collection := &data.Collection{
 		Name: "Test Playlist",
 		Musics: []*data.Music{
-			{Title: "Song 1", Artist: "Artist 1", Album: "Album 1"},
-			{Title: "Song 2", Artist: "Artist 2", Album: "Album 2"},
+			{Name: "Song 1", Artist: "Artist 1", Album: entities.PtrStr("Collection 1")},
+			{Name: "Song 2", Artist: "Artist 2", Album: entities.PtrStr("Collection 2")},
 		},
 	}
 	pendingItems := map[string]string{}
@@ -347,7 +347,7 @@ func TestYoutubeImporter_getNewItems_SearchError(t *testing.T) {
 	collection := &data.Collection{
 		Name: "Test Playlist",
 		Musics: []*data.Music{
-			{Title: "Song 1", Artist: "Artist 1", Album: "Album 1"},
+			{Name: "Song 1", Artist: "Artist 1", Album: entities.PtrStr("Collection 1")},
 		},
 	}
 	pendingItems := map[string]string{}
@@ -488,7 +488,7 @@ func BenchmarkYoutubeImporter_Import(b *testing.B) {
 	collection := &data.Collection{
 		Name: "Benchmark Playlist",
 		Musics: []*data.Music{
-			{Title: "Benchmark Song", Artist: "Benchmark Artist", Album: "Benchmark Album"},
+			{Name: "Benchmark Song", Artist: "Benchmark Artist", Album: entities.PtrStr("Benchmark Collection")},
 		},
 	}
 

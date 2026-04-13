@@ -3,6 +3,7 @@ package album
 import (
 	"context"
 	"errors"
+	"spotify_migration/entities"
 	"spotify_migration/entities/data"
 	"spotify_migration/mocks"
 	"testing"
@@ -11,29 +12,24 @@ import (
 )
 
 func TestNewImporter(t *testing.T) {
-	// Arrange
 	mockSaveAlbums := mocks.NewISaveAlbums(t)
 
-	// Act
 	importerUsecase := NewImporter(mockSaveAlbums)
 
-	// Assert
 	assert.NotNil(t, importerUsecase)
 	assert.IsType(t, &playlistImporter{}, importerUsecase)
 }
 
 func TestAlbumImporter_Import_Success(t *testing.T) {
 	ctx := context.Background()
-	albums := []*data.Album{
-		{
-			Title:   "Abbey Road",
-			Artists: []string{"The Beatles"},
-		},
-		{
-			Title:   "Dark Side of the Moon",
-			Artists: []string{"Pink Floyd"},
-		},
+	albums := &data.Collection{
+		Name:   "Abbey Road",
+		Artist: entities.PtrStr("The Beatles"),
 	}
+	albums.Append(&data.Collection{
+		Name:   "Dark Side of the Moon",
+		Artist: entities.PtrStr("Pink Floyd"),
+	})
 
 	mockSaveAlbums := mocks.NewISaveAlbums(t)
 	mockSaveAlbums.On("SaveAlbums", ctx, albums).Return(nil)
@@ -50,13 +46,12 @@ func TestAlbumImporter_Import_Success(t *testing.T) {
 
 func TestAlbumImporter_Import_EmptyAlbums(t *testing.T) {
 	ctx := context.Background()
-	albums := []*data.Album{}
 
 	mockSaveAlbums := mocks.NewISaveAlbums(t)
 
 	albumImporter := NewImporter(mockSaveAlbums)
 
-	result, err := albumImporter.Import(ctx, albums)
+	result, err := albumImporter.Import(ctx, nil)
 
 	assert.NoError(t, err)
 	assert.False(t, result)
@@ -77,30 +72,11 @@ func TestAlbumImporter_Import_NilCollection(t *testing.T) {
 	mockSaveAlbums.AssertExpectations(t)
 }
 
-func TestAlbumImporter_Import_InvalidCollectionType(t *testing.T) {
-	ctx := context.Background()
-	invalidCollection := "not an album slice"
-
-	mockSaveAlbums := mocks.NewISaveAlbums(t)
-
-	albumImporter := NewImporter(mockSaveAlbums)
-
-	result, err := albumImporter.Import(ctx, invalidCollection)
-
-	assert.Error(t, err)
-	assert.False(t, result)
-	assert.Equal(t, "invalid album data", err.Error())
-
-	mockSaveAlbums.AssertExpectations(t)
-}
-
 func TestAlbumImporter_Import_SaveAlbumsError(t *testing.T) {
 	ctx := context.Background()
-	albums := []*data.Album{
-		{
-			Title:   "Thriller",
-			Artists: []string{"Michael Jackson"},
-		},
+	albums := &data.Collection{
+		Name:   "Thriller",
+		Artist: entities.PtrStr("Michael Jackson"),
 	}
 	expectedError := errors.New("failed to save albums")
 
@@ -120,11 +96,9 @@ func TestAlbumImporter_Import_SaveAlbumsError(t *testing.T) {
 
 func TestAlbumImporter_Import_SingleAlbum(t *testing.T) {
 	ctx := context.Background()
-	albums := []*data.Album{
-		{
-			Title:   "Nevermind",
-			Artists: []string{"Nirvana"},
-		},
+	albums := &data.Collection{
+		Name:   "Nevermind",
+		Artist: entities.PtrStr("Nirvana"),
 	}
 
 	mockSaveAlbums := mocks.NewISaveAlbums(t)
@@ -144,12 +118,12 @@ func TestAlbumImporter_Import_LargeAlbumCollection(t *testing.T) {
 	ctx := context.Background()
 
 	// Create a larger collection of albums
-	albums := make([]*data.Album, 100)
+	albums := &data.Collection{}
 	for i := 0; i < 100; i++ {
-		albums[i] = &data.Album{
-			Title:   "Album " + string(rune(i)),
-			Artists: []string{"Artists " + string(rune(i))},
-		}
+		albums.Append(&data.Collection{
+			Name:   "Collection " + string(rune(i)),
+			Artist: entities.PtrStr("Artist " + string(rune(i))),
+		})
 	}
 
 	mockSaveAlbums := mocks.NewISaveAlbums(t)

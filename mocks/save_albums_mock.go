@@ -39,7 +39,7 @@ func (_m *ISaveAlbums) EXPECT() *ISaveAlbums_Expecter {
 }
 
 // SaveAlbums provides a mock function for the type ISaveAlbums
-func (_mock *ISaveAlbums) SaveAlbums(ctx context.Context, albums []*data.Album) error {
+func (_mock *ISaveAlbums) SaveAlbums(ctx context.Context, albums *data.Collection) error {
 	ret := _mock.Called(ctx, albums)
 
 	if len(ret) == 0 {
@@ -47,7 +47,7 @@ func (_mock *ISaveAlbums) SaveAlbums(ctx context.Context, albums []*data.Album) 
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, []*data.Album) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *data.Collection) error); ok {
 		r0 = returnFunc(ctx, albums)
 	} else {
 		r0 = ret.Error(0)
@@ -62,20 +62,20 @@ type ISaveAlbums_SaveAlbums_Call struct {
 
 // SaveAlbums is a helper method to define mock.On call
 //   - ctx context.Context
-//   - albums []*data.Album
+//   - albums *data.Collection
 func (_e *ISaveAlbums_Expecter) SaveAlbums(ctx interface{}, albums interface{}) *ISaveAlbums_SaveAlbums_Call {
 	return &ISaveAlbums_SaveAlbums_Call{Call: _e.mock.On("SaveAlbums", ctx, albums)}
 }
 
-func (_c *ISaveAlbums_SaveAlbums_Call) Run(run func(ctx context.Context, albums []*data.Album)) *ISaveAlbums_SaveAlbums_Call {
+func (_c *ISaveAlbums_SaveAlbums_Call) Run(run func(ctx context.Context, albums *data.Collection)) *ISaveAlbums_SaveAlbums_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 []*data.Album
+		var arg1 *data.Collection
 		if args[1] != nil {
-			arg1 = args[1].([]*data.Album)
+			arg1 = args[1].(*data.Collection)
 		}
 		run(
 			arg0,
@@ -90,7 +90,7 @@ func (_c *ISaveAlbums_SaveAlbums_Call) Return(err error) *ISaveAlbums_SaveAlbums
 	return _c
 }
 
-func (_c *ISaveAlbums_SaveAlbums_Call) RunAndReturn(run func(ctx context.Context, albums []*data.Album) error) *ISaveAlbums_SaveAlbums_Call {
+func (_c *ISaveAlbums_SaveAlbums_Call) RunAndReturn(run func(ctx context.Context, albums *data.Collection) error) *ISaveAlbums_SaveAlbums_Call {
 	_c.Call.Return(run)
 	return _c
 }

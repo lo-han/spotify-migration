@@ -2,7 +2,6 @@ package album
 
 import (
 	"context"
-	"errors"
 	"log"
 	"spotify_migration/entities"
 	"spotify_migration/entities/data"
@@ -21,24 +20,15 @@ type playlistImporter struct {
 	target usecases.ISaveAlbums
 }
 
-func (s *playlistImporter) Import(ctx context.Context, collection any) (bool, error) {
+func (s *playlistImporter) Import(ctx context.Context, collection *data.Collection) (bool, error) {
 	if collection == nil {
-		return false, nil
-	}
-
-	albums, ok := collection.([]*data.Album)
-	if !ok {
-		return false, errors.New("invalid album data")
-	}
-
-	if len(albums) == 0 {
 		log.Println("No items to import.")
 		return false, nil
 	}
 
 	log.Println("Importing items...")
 
-	err := s.target.SaveAlbums(ctx, albums)
+	err := s.target.SaveAlbums(ctx, collection)
 
 	return err == nil, err
 }

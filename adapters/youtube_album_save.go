@@ -20,7 +20,7 @@ func NewYoutubeAlbumSave(service *youtube.Service) usecases.ISaveAlbums {
 	}
 }
 
-func (s *youtubeAlbumSave) SaveAlbums(ctx context.Context, albums []*data.Album) error {
+func (s *youtubeAlbumSave) SaveAlbums(ctx context.Context, albums *data.Collection) error {
 	albumIDs, err := s.searchAlbums(ctx, albums)
 	if err != nil {
 		return err
@@ -32,10 +32,11 @@ func (s *youtubeAlbumSave) SaveAlbums(ctx context.Context, albums []*data.Album)
 	return nil
 }
 
-func (s *youtubeAlbumSave) searchAlbums(ctx context.Context, albums []*data.Album) (albumsID []string, err error) {
-	for _, album := range albums {
+func (s *youtubeAlbumSave) searchAlbums(ctx context.Context, albums *data.Collection) (albumsID []string, err error) {
+	for album := albums.Current(); album != nil; album = album.Next() {
+
 		call := s.service.Search.List([]string{"id", "snippet"}).
-			Q(album.Title + " " + entities.List(album.Artists) + " album oficial channel").MaxResults(1).
+			Q(album.Name + " " + entities.ReadStr(album.Artist) + " album oficial channel").MaxResults(1).
 			Type("playlist").Context(ctx)
 
 		response, err := call.Context(ctx).Do()
@@ -44,7 +45,7 @@ func (s *youtubeAlbumSave) searchAlbums(ctx context.Context, albums []*data.Albu
 		}
 
 		if len(response.Items) == 0 {
-			log.Printf("No YouTube results found for album: %s\n", album.Title)
+			log.Printf("No YouTube results found for album: %s\n", album.Name)
 			continue
 		}
 

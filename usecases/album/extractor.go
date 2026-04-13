@@ -5,6 +5,7 @@ import (
 	"log"
 	"spotify_migration/entities"
 	domain "spotify_migration/entities"
+	"spotify_migration/entities/data"
 	"spotify_migration/usecases"
 )
 
@@ -18,17 +19,19 @@ type albumExtractor struct {
 	origin usecases.IGetAlbums
 }
 
-func (s *albumExtractor) Extract(ctx context.Context, resourceName string) (any, error) {
+func (s *albumExtractor) Extract(ctx context.Context, resourceName string) (*data.Collection, error) {
 	albums, err := s.origin.GetAlbums(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(albums) != 0 {
+	if albums != nil {
 		log.Println("Found albums:")
-		for _, album := range albums {
-			log.Printf("- %s by %s\n", album.Title, entities.List(album.Artists))
+
+		for album := albums.Current(); album != nil; album = album.Next() {
+			log.Printf("- %s by %s\n", album.Name, entities.ReadStr(album.Artist))
 		}
 	}
+
 	return albums, nil
 }

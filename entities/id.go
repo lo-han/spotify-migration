@@ -6,5 +6,5 @@ func ID(music *data.Music) string {
 	if music == nil {
 		return ""
 	}
-	return music.Title + "_" + music.Artist + "_" + music.Album
+	return music.Name + "_" + music.Artist + "_" + ReadStr(music.Album)
 }

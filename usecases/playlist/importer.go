@@ -2,7 +2,6 @@ package playlist
 
 import (
 	"context"
-	"errors"
 	"log"
 	"spotify_migration/entities"
 	"spotify_migration/entities/data"
@@ -17,7 +16,7 @@ func NewImporter(
 	searcher usecases.ITargetSearch,
 	collection usecases.ITargetCollection,
 	targetWriter usecases.ITargetWriter,
-	migrationState entities.IMigrationStateRepository,
+	migrationState data.IMigrationStateRepository,
 ) entities.IImporterUsecase {
 
 	return &playlistImporter{
@@ -35,20 +34,15 @@ type playlistImporter struct {
 	targetWriter   usecases.ITargetWriter
 	apiLimit       int
 	searchedItems  int
-	migrationState entities.IMigrationStateRepository
+	migrationState data.IMigrationStateRepository
 }
 
-func (s *playlistImporter) Import(ctx context.Context, collection any) (bool, error) {
+func (s *playlistImporter) Import(ctx context.Context, collection *data.Collection) (bool, error) {
 	if collection == nil {
 		return false, nil
 	}
 
-	musics, ok := collection.(*data.Collection)
-	if !ok {
-		return false, errors.New("invalid collection data")
-	}
-
-	collectionID, err := s.getCollectionID(ctx, musics)
+	collectionID, err := s.getCollectionID(ctx, collection)
 	if err != nil {
 		return false, err
 	}
@@ -58,12 +52,12 @@ func (s *playlistImporter) Import(ctx context.Context, collection any) (bool, er
 		return false, err
 	}
 
-	err = s.getNewItems(ctx, musics, pendingItemIDs, migratedItemIDs)
+	err = s.getNewItems(ctx, collection, pendingItemIDs, migratedItemIDs)
 	if err != nil {
 		return false, err
 	}
 
-	log.Println("Found", len(pendingItemIDs), "items to import in collection", musics.Name)
+	log.Println("Found", len(pendingItemIDs), "items to import in collection", collection.Name)
 	log.Println("Importing items...")
 
 	err = s.insertAll(ctx, collectionID, pendingItemIDs)

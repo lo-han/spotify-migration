@@ -28,7 +28,7 @@ type MigrationState struct {
 	items    map[string]state
 }
 
-func NewMigrationState(collectionID string) domain.IMigrationStateRepository {
+func NewMigrationState(collectionID string) data.IMigrationStateRepository {
 	return &MigrationState{
 		filename: fmt.Sprintf("%s_migration_state.json", collectionID),
 		items:    make(map[string]state),

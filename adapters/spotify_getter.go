@@ -52,8 +52,8 @@ func (s *spotifyGetter) GetPlaylistItems(ctx context.Context, resourceName, id s
 			track := item.Track.Track.SimpleTrack
 
 			music := &data.Music{
-				Title: track.Name,
-				Album: track.Album.Name,
+				Name:  track.Name,
+				Album: &track.Album.Name,
 			}
 			if len(track.Artists) > 0 {
 				music.Artist = track.Artists[0].Name

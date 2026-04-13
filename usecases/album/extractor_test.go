@@ -3,6 +3,7 @@ package album
 import (
 	"context"
 	"errors"
+	"spotify_migration/entities"
 	"spotify_migration/entities/data"
 	"spotify_migration/mocks"
 	"testing"
@@ -11,13 +12,10 @@ import (
 )
 
 func TestNewExtractor(t *testing.T) {
-	// Arrange
 	mockGetAlbums := mocks.NewIGetAlbums(t)
 
-	// Act
 	extractorUsecase := NewExtractor(mockGetAlbums)
 
-	// Assert
 	assert.NotNil(t, extractorUsecase)
 	assert.IsType(t, &albumExtractor{}, extractorUsecase)
 }
@@ -26,16 +24,16 @@ func TestAlbumExtractor_Extract_Success(t *testing.T) {
 	ctx := context.Background()
 	resourceName := "My Saved Albums"
 
-	expectedAlbums := []*data.Album{
-		{
-			Title:   "Abbey Road",
-			Artists: []string{"The Beatles"},
-		},
-		{
-			Title:   "Dark Side of the Moon",
-			Artists: []string{"Pink Floyd"},
-		},
+	expectedAlbums := &data.Collection{
+		Name:   "Abbey Road",
+		Artist: entities.PtrStr("The Beatles"),
 	}
+	expectedAlbums.Append(
+		&data.Collection{
+			Name:   "Dark Side of the Moon",
+			Artist: entities.PtrStr("Pink Floyd"),
+		},
+	)
 
 	mockGetAlbums := mocks.NewIGetAlbums(t)
 	mockGetAlbums.On("GetAlbums", ctx).Return(expectedAlbums, nil)
@@ -44,21 +42,15 @@ func TestAlbumExtractor_Extract_Success(t *testing.T) {
 
 	result, err := albumExtractor.Extract(ctx, resourceName)
 
-	albums, ok := result.([]*data.Album)
-	if !ok {
-		panic("invalid album data")
-	}
-
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
-	assert.Equal(t, expectedAlbums, albums)
-	assert.Len(t, albums, 2)
 
-	assert.Equal(t, "Abbey Road", albums[0].Title)
-	assert.Equal(t, []string{"The Beatles"}, albums[0].Artists)
+	assert.Equal(t, "Abbey Road", result.Name)
+	assert.Equal(t, "The Beatles", *result.Artist)
 
-	assert.Equal(t, "Dark Side of the Moon", albums[1].Title)
-	assert.Equal(t, []string{"Pink Floyd"}, albums[1].Artists)
+	result = result.Next()
+	assert.Equal(t, "Dark Side of the Moon", result.Name)
+	assert.Equal(t, "Pink Floyd", *result.Artist)
 
 	mockGetAlbums.AssertExpectations(t)
 }
@@ -67,24 +59,15 @@ func TestAlbumExtractor_Extract_EmptyAlbums(t *testing.T) {
 	ctx := context.Background()
 	resourceName := "Empty Albums"
 
-	expectedAlbums := []*data.Album{}
-
 	mockGetAlbums := mocks.NewIGetAlbums(t)
-	mockGetAlbums.On("GetAlbums", ctx).Return(expectedAlbums, nil)
+	mockGetAlbums.On("GetAlbums", ctx).Return(nil, nil)
 
 	albumExtractor := NewExtractor(mockGetAlbums)
 
 	result, err := albumExtractor.Extract(ctx, resourceName)
 
-	albums, ok := result.([]*data.Album)
-	if !ok {
-		panic("invalid album data")
-	}
-
 	assert.NoError(t, err)
-	assert.NotNil(t, result)
-	assert.Equal(t, expectedAlbums, albums)
-	assert.Len(t, albums, 0)
+	assert.Nil(t, result)
 
 	mockGetAlbums.AssertExpectations(t)
 }
@@ -112,11 +95,9 @@ func TestAlbumExtractor_Extract_SingleAlbum(t *testing.T) {
 	ctx := context.Background()
 	resourceName := "My Albums"
 
-	expectedAlbums := []*data.Album{
-		{
-			Title:   "Thriller",
-			Artists: []string{"Michael Jackson"},
-		},
+	expectedAlbums := &data.Collection{
+		Name:   "Thriller",
+		Artist: entities.PtrStr("Michael Jackson"),
 	}
 
 	mockGetAlbums := mocks.NewIGetAlbums(t)
@@ -126,16 +107,10 @@ func TestAlbumExtractor_Extract_SingleAlbum(t *testing.T) {
 
 	result, err := albumExtractor.Extract(ctx, resourceName)
 
-	albums, ok := result.([]*data.Album)
-	if !ok {
-		panic("invalid album data")
-	}
-
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
-	assert.Len(t, albums, 1)
-	assert.Equal(t, "Thriller", albums[0].Title)
-	assert.Equal(t, []string{"Michael Jackson"}, albums[0].Artists)
+	assert.Equal(t, "Thriller", result.Name)
+	assert.Equal(t, "Michael Jackson", *result.Artist)
 
 	mockGetAlbums.AssertExpectations(t)
 }
